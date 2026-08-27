@@ -31,6 +31,7 @@ function initPortfolio() {
   refreshNavMetrics();
   setupMobileNav(); // before setupNavigation so mobileMenu API is ready
   setupNavigation();
+  setupFooterVsEasterEgg();
   setupModals();
   setupAnimationPausing();
   setupRipples();
@@ -49,8 +50,13 @@ function initPortfolio() {
 
   // Safety: reveal content if scroll observer never fires
   setTimeout(() => {
+    document.documentElement.classList.add('fonts-ready');
     document.querySelectorAll('[data-animate]:not(.animate-in)').forEach((el) => {
       el.classList.add('animate-in');
+    });
+    document.querySelectorAll('.hero-intro > .hero-identity, .hero-content > .hero-credential-card').forEach((el) => {
+      el.style.opacity = '1';
+      el.style.transform = 'none';
     });
   }, 800);
 }
@@ -123,16 +129,22 @@ function cacheScrollLayout(sections) {
   });
 }
 
+function getSectionScrollAnchor(section) {
+  if (!section || section.id === 'top') return null;
+  return section.querySelector('.section-header') || section;
+}
+
 function getSectionScrollTop(target) {
   const section = resolveSection(target);
   if (!section || section.id === 'top') return 0;
 
+  const anchor = getSectionScrollAnchor(section);
   // Live nav measure ONLY — never write --scroll-clearance here
   // (writing CSS mid-calc shifts hero padding and causes pyki/kindaki bounce)
   const clearance = measureNavBottom() + getScrollGap();
   const scrollY = window.scrollY;
-  const sectionTop = section.getBoundingClientRect().top + scrollY;
-  const top = sectionTop - clearance;
+  const anchorTop = anchor.getBoundingClientRect().top + scrollY;
+  const top = anchorTop - clearance;
 
   const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
   return Math.min(Math.max(0, top), maxScroll);
@@ -157,9 +169,8 @@ function easeAppleSuperior(t, mode = 'short') {
     return t * t * t * (t * (t * 6 - 15) + 10);
   }
 
-  // Short hops: soft ease-out silk
-  const u = 1 - t;
-  return 1 - u * u * u * u * (0.5 + 0.5 * u);
+  // Short hops: Apple site ease-out (cubic-bezier 0.16, 1, 0.3, 1 feel)
+  return 1 - Math.pow(1 - t, 3.35);
 }
 
 function getScrollDuration(delta) {
@@ -168,28 +179,27 @@ function getScrollDuration(delta) {
   const mode = getTravelMode(distance);
 
   if (mode === 'long') {
-    if (distance > 3200) return mobile ? 1780 : 1920;
-    if (distance > 2200) return mobile ? 1640 : 1760;
-    return mobile ? 1500 : 1620;
+    if (distance > 3200) return mobile ? 1880 : 2040;
+    if (distance > 2200) return mobile ? 1720 : 1860;
+    return mobile ? 1580 : 1700;
   }
 
   if (mode === 'medium') {
-    if (distance > 1200) return mobile ? 1360 : 1460;
-    return mobile ? 1240 : 1340;
+    if (distance > 1200) return mobile ? 1420 : 1540;
+    return mobile ? 1300 : 1420;
   }
 
-  // short — keep the hero→projects feel you liked
   const perceptual =
-    Math.sqrt(distance) * (mobile ? 19.2 : 20.4) +
-    Math.pow(distance, 0.38) * (mobile ? 9.6 : 10.4);
+    Math.sqrt(distance) * (mobile ? 20 : 21.2) +
+    Math.pow(distance, 0.38) * (mobile ? 10 : 10.8);
 
-  const base = mobile ? 560 : 600;
-  const min = mobile ? 720 : 760;
-  const max = mobile ? 1100 : 1180;
+  const base = mobile ? 580 : 620;
+  const min = mobile ? 780 : 860;
+  const max = mobile ? 1180 : 1280;
 
-  if (distance < 40) return mobile ? 600 : 640;
-  if (distance < 100) return mobile ? 740 : 780;
-  if (distance < 240) return mobile ? 880 : 940;
+  if (distance < 40) return mobile ? 640 : 700;
+  if (distance < 100) return mobile ? 780 : 860;
+  if (distance < 240) return mobile ? 920 : 1000;
 
   return Math.min(max, Math.max(min, base + perceptual));
 }
@@ -197,13 +207,13 @@ function getScrollDuration(delta) {
 function scrollWindowTo(y, options = {}) {
   const { snap = false, coarse = false } = options;
   const top = Math.max(0, y);
-  const next = snap || coarse ? Math.round(top) : Math.round(top * 2) / 2;
-  const epsilon = snap || coarse ? 0.5 : 0.25;
+  const next = snap || coarse ? Math.round(top) : top;
+  const epsilon = snap || coarse ? 0.5 : 0.08;
   if (Math.abs(window.scrollY - next) < epsilon) return;
   window.scrollTo(0, next);
 }
 
-/* --- Native page scroll companion (GPU calm only — never hijacks wheel) --- */
+/* --- Apple silk scroll — desktop wheel lerp + native mobile momentum --- */
 let pageScrollApi = null;
 let scrollIntentY = null;
 
@@ -220,10 +230,38 @@ function setPageScrollingClass(on) {
 }
 
 function setupApplePageScroll() {
+  const reduced = document.documentElement.classList.contains('reduced-motion');
   let moving = false;
   let settleTimer = null;
   let rafGate = 0;
   let paused = false;
+
+  // Desktop silk lerp state
+  let silkRaf = 0;
+  let silkCurrent = window.scrollY;
+  let silkTarget = window.scrollY;
+  let silkVelocity = 0;
+  let silkDriving = false;
+
+  const SILK_LERP = 0.105;
+  const SILK_VELOCITY_DECAY = 0.88;
+  const SILK_WHEEL_GAIN = 0.92;
+  const SILK_STOP = 0.35;
+
+  function maxScrollY() {
+    return Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+  }
+
+  function clampScrollY(y) {
+    return Math.min(maxScrollY(), Math.max(0, y));
+  }
+
+  function syncSilkFromWindow() {
+    silkCurrent = window.scrollY;
+    silkTarget = window.scrollY;
+    silkVelocity = 0;
+    silkDriving = false;
+  }
 
   function markMoving() {
     if (paused || navScrollAnimating) return;
@@ -235,13 +273,84 @@ function setupApplePageScroll() {
     settleTimer = setTimeout(() => {
       moving = false;
       setPageScrollingClass(false);
-    }, 140);
+    }, 150);
+  }
+
+  function applySilkScroll(y) {
+    const next = clampScrollY(y);
+    if (Math.abs(window.scrollY - next) < 0.08) return;
+    window.scrollTo(0, next);
+    silkCurrent = next;
+  }
+
+  function cancelSilkLoop() {
+    if (silkRaf) cancelAnimationFrame(silkRaf);
+    silkRaf = 0;
+  }
+
+  function silkFrame() {
+    silkRaf = 0;
+    if (paused || navScrollAnimating || reduced || isMobileNavLayout()) return;
+
+    const diff = silkTarget - silkCurrent;
+    silkVelocity *= SILK_VELOCITY_DECAY;
+    silkCurrent += diff * SILK_LERP + silkVelocity;
+
+    if (Math.abs(diff) < SILK_STOP && Math.abs(silkVelocity) < SILK_STOP) {
+      silkCurrent = silkTarget;
+      silkVelocity = 0;
+      silkDriving = false;
+      applySilkScroll(silkCurrent);
+      return;
+    }
+
+    applySilkScroll(silkCurrent);
+    markMoving();
+    silkRaf = requestAnimationFrame(silkFrame);
+  }
+
+  function requestSilkFrame() {
+    if (!silkRaf) silkRaf = requestAnimationFrame(silkFrame);
+  }
+
+  function normalizeWheelDelta(e) {
+    let delta = e.deltaY;
+    if (e.deltaMode === 1) delta *= 16;
+    if (e.deltaMode === 2) delta *= window.innerHeight;
+    return delta;
+  }
+
+  function onWheel(e) {
+    if (paused || navScrollAnimating || reduced || isMobileNavLayout()) {
+      markMoving();
+      return;
+    }
+    if (
+      document.documentElement.classList.contains('menu-open') ||
+      document.documentElement.classList.contains('modal-open')
+    ) {
+      return;
+    }
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY) * 1.2) return;
+
+    e.preventDefault();
+    silkDriving = true;
+
+    const delta = normalizeWheelDelta(e) * SILK_WHEEL_GAIN;
+    silkTarget = clampScrollY(silkTarget + delta);
+    silkVelocity += delta * 0.018;
+
+    requestSilkFrame();
+    markMoving();
   }
 
   function onScroll() {
     if (rafGate) return;
     rafGate = requestAnimationFrame(() => {
       rafGate = 0;
+      if (!navScrollAnimating && !paused && !silkDriving) {
+        syncSilkFromWindow();
+      }
       markMoving();
     });
   }
@@ -252,40 +361,56 @@ function setupApplePageScroll() {
 
   function onScrollEnd() {
     clearTimeout(settleTimer);
+    if (!silkDriving) syncSilkFromWindow();
     settleTimer = setTimeout(() => {
       moving = false;
       setPageScrollingClass(false);
-    }, 48);
+      if (!silkDriving) syncSilkFromWindow();
+    }, 52);
+  }
+
+  function onResize() {
+    silkTarget = clampScrollY(silkTarget);
+    if (!silkDriving && !navScrollAnimating) syncSilkFromWindow();
   }
 
   window.addEventListener('scroll', onScroll, { passive: true });
-  window.addEventListener('wheel', onIntent, { passive: true });
+  window.addEventListener('wheel', onWheel, { passive: false });
   window.addEventListener('touchmove', onIntent, { passive: true });
+  window.addEventListener('resize', onResize, { passive: true });
   if ('onscrollend' in window) {
     window.addEventListener('scrollend', onScrollEnd, { passive: true });
   }
 
   return {
-    sync() {},
+    sync() {
+      syncSilkFromWindow();
+    },
     pause() {
       paused = true;
       moving = false;
+      silkDriving = false;
+      cancelSilkLoop();
+      syncSilkFromWindow();
       setPageScrollingClass(false);
       clearTimeout(settleTimer);
     },
     resume() {
       paused = false;
+      syncSilkFromWindow();
     },
     isMoving() {
-      return moving;
+      return moving || silkDriving;
     },
     destroy() {
       window.removeEventListener('scroll', onScroll);
-      window.removeEventListener('wheel', onIntent);
+      window.removeEventListener('wheel', onWheel);
       window.removeEventListener('touchmove', onIntent);
+      window.removeEventListener('resize', onResize);
       if ('onscrollend' in window) {
         window.removeEventListener('scrollend', onScrollEnd);
       }
+      cancelSilkLoop();
       clearTimeout(settleTimer);
       if (rafGate) cancelAnimationFrame(rafGate);
       setPageScrollingClass(false);
@@ -472,7 +597,6 @@ function smoothScrollToExact(targetY, options = {}) {
   let interrupted = false;
   let rafId = 0;
   let startTime = 0;
-  let prevProgress = 0;
 
   smoothScrollCancel = () => {
     cancelled = true;
@@ -504,14 +628,7 @@ function smoothScrollToExact(targetY, options = {}) {
 
       if (!startTime) startTime = now;
 
-      const raw = (now - startTime) / duration;
-      // Tiny hitch clamp only — keeps silk continuous
-      const maxStep = mode === 'long' ? 0.085 : mode === 'medium' ? 0.1 : 0.14;
-      const step = raw - prevProgress;
-      const progress =
-        step > maxStep ? Math.min(1, prevProgress + maxStep) : Math.min(1, Math.max(prevProgress, raw));
-      prevProgress = progress;
-
+      const progress = Math.min(1, (now - startTime) / duration);
       const eased = easeAppleSuperior(progress, mode);
       scrollWindowTo(startY + delta * eased, { snap: false, coarse });
 
@@ -532,10 +649,15 @@ function finishProgrammaticScroll() {
   navScrollAnimating = false;
   detachScrollInterrupt();
 
-  // Snap ONLY to click-time Y — no remeasure (prevents pyki/kindaki bounce)
-  const landedY = scrollIntentY != null ? scrollIntentY : window.scrollY;
+  // Snap to final anchor — remeasure once so every nav click lands under the bar
+  let landedY = scrollIntentY != null ? scrollIntentY : window.scrollY;
+  if (userNavTarget && userNavTarget !== 'top') {
+    const section = document.getElementById(userNavTarget);
+    if (section) landedY = getSectionScrollTop(section);
+  }
   scrollIntentY = null;
   scrollWindowTo(landedY, { snap: true });
+  pageScrollApi?.sync?.();
   resumePageScroll();
   clearNavScrollLock();
 
@@ -1256,17 +1378,40 @@ function setupNavigation() {
     }
   }
 
-  const logo = document.getElementById('logo-aws-btn');
+  const logo = document.getElementById('logo-vs-btn');
   if (logo) {
-    logo.addEventListener('click', () => {
+    logo.addEventListener('click', (e) => {
+      e.preventDefault();
       mobileMenu?.closeMenu?.();
       setHomeNav();
       scrollToY(0);
     });
-    logo.style.cursor = 'pointer';
   }
 
   updateActiveNavNow(true);
+}
+
+function setupFooterVsEasterEgg() {
+  const footerVs = document.getElementById('footer-vs-btn');
+  if (!footerVs) return;
+
+  footerVs.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    footerVs.classList.remove('is-easter-glow');
+    void footerVs.offsetWidth;
+    footerVs.classList.add('is-easter-glow');
+
+    const cleanup = () => footerVs.classList.remove('is-easter-glow');
+
+    if (document.documentElement.classList.contains('reduced-motion')) {
+      window.setTimeout(cleanup, 420);
+      return;
+    }
+
+    footerVs.addEventListener('animationend', cleanup, { once: true });
+    window.setTimeout(cleanup, 1100);
+  });
 }
 
 // ===== MOBILE NAVIGATION =====
@@ -1689,7 +1834,7 @@ function setupImageLayoutRefresh() {
   );
 }
 
-// Touch targets + native scroll companion (no wheel hijack)
+// Touch targets + Apple silk scroll (desktop wheel lerp + native mobile momentum)
 function setupScrollPerf() {
   document.documentElement.style.scrollBehavior = 'auto';
 
