@@ -744,7 +744,7 @@
         <a href="#portfolio-deployment">Pipeline</a>
         <a href="#certifications">Cloud Quest</a>
         <a href="#achievements">Standards</a>
-        <a href="#projects">Projects</a>
+        <a href="#projects">Work</a>
         <a href="#skills">Stack</a>
         <a href="#contact" class="cta-nav">Let's Talk</a>
       </div>
@@ -810,7 +810,7 @@
           AWS Certified Solutions Architect — DevOps &amp; AWS Cloud Engineer focused on automated delivery on AWS.
         </p>
         <p class="about-para">
-          I build EKS GitOps pipelines, serverless architectures, event-driven systems, and Terraform infrastructure. Every Main project includes architecture diagrams and documented tradeoffs.
+          I build EKS GitOps pipelines, serverless architectures, event-driven systems, and Terraform infrastructure. Every project includes architecture diagrams and documented tradeoffs.
         </p>
       </div>
 
@@ -1057,14 +1057,26 @@
   <!-- PROJECTS SECTION -->
   <section id="projects" class="projects">
     <div class="section-header">
-      <h2 class="section-title">Projects</h2>
-      <p class="section-desc">Production-style AWS builds with Terraform, CI/CD, GitOps, diagrams, and tradeoff docs.</p>
+      <h2 class="section-title">Work</h2>
+      <p class="section-desc">Twelve AWS builds across DevOps, Serverless, IaC, Security, and core AWS architecture — each with diagrams, tradeoffs, and GitHub repos.</p>
     </div>
-    
+
     <div class="projects-stage">
-    <div class="featured-projects-grid">
+    <div class="project-filters-wrap">
+    <div class="project-filters" role="tablist" aria-label="Filter projects by focus area">
+      <span class="project-filter-indicator" aria-hidden="true"></span>
+      <button type="button" class="project-filter is-active" role="tab" aria-selected="true" data-filter="all">All</button>
+      <button type="button" class="project-filter" role="tab" aria-selected="false" data-filter="aws">AWS</button>
+      <button type="button" class="project-filter" role="tab" aria-selected="false" data-filter="devops">DevOps</button>
+      <button type="button" class="project-filter" role="tab" aria-selected="false" data-filter="serverless">Serverless</button>
+      <button type="button" class="project-filter" role="tab" aria-selected="false" data-filter="iac">Terraform</button>
+      <button type="button" class="project-filter" role="tab" aria-selected="false" data-filter="security">Security</button>
+    </div>
+    </div>
+
+    <div class="projects-primary-grid selected-work-grid">
       <!-- AWS EKS DevOps -->
-      <div class="featured-project-card">
+      <div class="featured-project-card" data-work-category="devops">
         <div class="featured-project-image clickable-image" role="button" tabindex="0" aria-label="Open architecture: AWS EKS DevOps — Go Web App GitOps" data-image="assets/images/architecture/aws-eks-devops-gitops.webp" data-alt="AWS EKS DevOps — Go Web App GitOps">
           <img src="assets/images/architecture/aws-eks-devops-gitops.webp" alt="AWS EKS DevOps — Go Web App GitOps" width="640" height="360" loading="eager" fetchpriority="high" decoding="async">
           <div class="image-overlay">
@@ -1115,13 +1127,13 @@
             </div>
           </div>
           <div class="featured-project-links">
-            <a href="https://github.com/VazeerShaik-AWS/AWS-EK8S-DevOps" target="_blank" rel="noopener noreferrer" class="github-link"><i class="fab fa-github"></i> GitHub Repository</a>
+            <a href="https://github.com/VazeerShaik-AWS/AWS-EK8S-DevOps" target="_blank" rel="noopener noreferrer" class="github-link" aria-label="View AWS EKS DevOps on GitHub"><i class="fab fa-github"></i> View on GitHub</a>
           </div>
         </div>
       </div>
 
       <!-- InkWell DevOps -->
-      <div class="featured-project-card">
+      <div class="featured-project-card" data-work-category="devops">
         <div class="featured-project-image clickable-image" role="button" tabindex="0" aria-label="Open architecture: InkWell — AWS EKS DevOps" data-image="assets/images/architecture/inkwell-eks-devsecops.webp" data-alt="InkWell — AWS EKS DevOps">
           <img src="assets/images/architecture/inkwell-eks-devsecops.webp" alt="InkWell — AWS EKS DevOps" width="640" height="360" loading="eager" fetchpriority="high" decoding="async">
           <div class="image-overlay">
@@ -1164,187 +1176,80 @@
               <span class="tech-tag">Amazon EKS</span>
               <span class="tech-tag">Terraform</span>
               <span class="tech-tag">GitHub Actions</span>
-              <span class="tech-tag">GHCR / Docker Hub</span>
-              <span class="tech-tag">Argo CD</span>
-              <span class="tech-tag">PostgreSQL</span>
+              <span class="tech-tag">Docker Hub</span>
               <span class="tech-tag">Prometheus</span>
               <span class="tech-tag">Grafana</span>
               <span class="tech-tag">NGINX Ingress</span>
             </div>
           </div>
           <div class="featured-project-links">
-            <a href="https://github.com/VazeerShaik-AWS/AWS-Inkwell-DevOps" target="_blank" rel="noopener noreferrer" class="github-link"><i class="fab fa-github"></i> GitHub Repository</a>
+            <a href="https://github.com/VazeerShaik-AWS/AWS-Inkwell-DevOps" target="_blank" rel="noopener noreferrer" class="github-link" aria-label="View InkWell EKS DevOps on GitHub"><i class="fab fa-github"></i> View on GitHub</a>
           </div>
         </div>
       </div>
 
-      <!-- Multi-Tier Architecture -->
-      <div class="featured-project-card">
-        <div class="featured-project-image clickable-image" role="button" tabindex="0" aria-label="Open architecture: Multi-Tier Architecture on AWS" data-image="assets/images/architecture/aws-multi-tier.webp" data-alt="Multi-Tier Architecture on AWS">
-          <img src="assets/images/architecture/aws-multi-tier.webp" alt="Multi-Tier Architecture on AWS" width="640" height="360" loading="eager" fetchpriority="high" decoding="async">
-          <div class="image-overlay">
-            <span class="featured-badge">Architecture</span>
-          </div>
-        </div>
-        <div class="featured-project-content">
-          <div class="featured-project-head">
-            <h3>Multi-Tier Architecture on AWS</h3>
-            <div class="project-logos">
+      <article class="work-grid-card" data-work-category="aws">
+        <button type="button" class="work-grid-thumb clickable-image" aria-label="Open architecture: Multi-Tier Architecture on AWS" data-image="assets/images/architecture/aws-multi-tier.webp" data-alt="Multi-Tier Architecture on AWS">
+          <img src="assets/images/architecture/aws-multi-tier.webp" alt="" width="320" height="180" loading="lazy" decoding="async">
+          <span class="work-grid-badge">AWS</span>
+        </button>
+        <div class="work-grid-body">
+          <span class="work-grid-category">AWS · Architecture</span>
+          <div class="work-grid-title-row">
+            <h4>Multi-Tier Architecture on AWS</h4>
+            <div class="project-logos project-logos--compact">
               <span class="proj-logo-badge aws-badge" title="AWS" aria-label="AWS"><i class="fab fa-aws proj-brand-icon proj-brand-icon--aws" aria-hidden="true"></i></span>
             </div>
           </div>
-          <p class="project-description">
-            Designed a highly available and scalable multi-tier architecture separating web, application, and database layers to improve performance and security.
-          </p>
-          
+          <p class="work-grid-summary">Highly available web, application, and database tiers on AWS — Multi-AZ subnets, Auto Scaling, ALB, and private RDS.</p>
+
           <div class="key-features">
             <h4><i class="fas fa-star"></i> Key Features</h4>
             <ul class="features-list">
-              <li>Multi-AZ deployment for high availability</li>
-              <li>Auto Scaling for handling traffic fluctuations</li>
-              <li>Enhanced security with private subnets and security groups</li>
-              <li>CloudWatch monitoring for tier health and performance</li>
+              <li>VPC with public and private subnets across multiple Availability Zones</li>
+              <li>Application Load Balancer routing traffic to an Auto Scaling web tier</li>
+              <li>App tier in private subnets with controlled security group access</li>
+              <li>Amazon RDS Multi-AZ for durable, isolated database storage</li>
             </ul>
           </div>
-          
+
           <div class="tradeoffs">
             <h4><i class="fas fa-balance-scale"></i> Tradeoffs</h4>
-            <p>Improves availability and performance, but increases operational complexity and infrastructure cost.</p>
+            <p>Multi-tier separation improves resilience and blast-radius control but adds networking and operational complexity versus a single-tier design.</p>
           </div>
-          
+
           <div class="services-used">
             <h4>Services Used:</h4>
-            <div class="tech-stack">
-              <span class="tech-tag">Amazon EC2</span>
-              <span class="tech-tag">ALB</span>
-              <span class="tech-tag">Amazon RDS</span>
+            <div class="tech-stack work-grid-tags">
               <span class="tech-tag">VPC</span>
+              <span class="tech-tag">ALB</span>
+              <span class="tech-tag">EC2</span>
               <span class="tech-tag">Auto Scaling</span>
+              <span class="tech-tag">RDS</span>
+              <span class="tech-tag">NAT Gateway</span>
             </div>
           </div>
           <div class="featured-project-links">
-            <a href="https://github.com/VazeerShaik-AWS/AWS-Multi-Tier-Architecture-Deployment" target="_blank" rel="noopener noreferrer" class="github-link"><i class="fab fa-github"></i> GitHub Repository</a>
+            <a href="https://github.com/VazeerShaik-AWS/AWS-Multi-Tier-Architecture-Deployment" target="_blank" rel="noopener noreferrer" class="github-link" aria-label="View Multi-Tier Architecture on GitHub"><i class="fab fa-github"></i> View on GitHub</a>
           </div>
         </div>
-      </div>
+      </article>
 
-      <!-- PROJECT 2 -->
-      <div class="featured-project-card">
-        <div class="featured-project-image clickable-image" role="button" tabindex="0" aria-label="Open architecture: Serverless Messaging — SNS, SQS &amp; Lambda" data-image="assets/images/architecture/serverless-sns-sqs-lambda.webp" data-alt="Serverless Messaging — SNS, SQS &amp; Lambda">
-          <img src="assets/images/architecture/serverless-sns-sqs-lambda.webp" alt="Serverless Messaging — SNS, SQS &amp; Lambda" width="640" height="360" loading="eager" fetchpriority="high" decoding="async">
-          <div class="image-overlay">
-            <span class="featured-badge">Architecture</span>
-          </div>
-        </div>
-        <div class="featured-project-content">
-          <div class="featured-project-head">
-            <h3>Serverless Messaging — SNS, SQS &amp; Lambda</h3>
-            <div class="project-logos">
-              <span class="proj-logo-badge aws-badge" title="AWS" aria-label="AWS"><i class="fab fa-aws proj-brand-icon proj-brand-icon--aws" aria-hidden="true"></i></span>
-            </div>
-          </div>
-          <p class="project-description">
-            Built a serverless messaging pipeline to ensure reliable and asynchronous communication between services. Designed to handle traffic spikes without data loss.
-          </p>
-          
-          <div class="key-features">
-            <h4><i class="fas fa-star"></i> Key Features</h4>
-            <ul class="features-list">
-              <li>Decoupled architecture</li>
-              <li>Event-driven auto-scaling with zero idle cost</li>
-              <li>Reliable message delivery with durable queues</li>
-              <li>CloudWatch visibility on queue depth and processing latency</li>
-            </ul>
-          </div>
-          
-          <div class="tradeoffs">
-            <h4><i class="fas fa-balance-scale"></i> Tradeoffs</h4>
-            <p>Adds latency and requires handling message duplication and ordering.</p>
-          </div>
-          
-          <div class="services-used">
-            <h4>Services Used:</h4>
-            <div class="tech-stack">
-              <span class="tech-tag">Amazon SNS</span>
-              <span class="tech-tag">Amazon SQS</span>
-              <span class="tech-tag">CloudWatch</span>
-              <span class="tech-tag">AWS Lambda</span>
-            </div>
-          </div>
-          <div class="featured-project-links">
-            <a href="https://github.com/VazeerShaik-AWS/AWS-Serverless-Architecture-SNS-SQS-Lambda" target="_blank" rel="noopener noreferrer" class="github-link"><i class="fab fa-github"></i> GitHub Repository</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- PROJECT 3 -->
-      <div class="featured-project-card">
-        <div class="featured-project-image clickable-image" role="button" tabindex="0" aria-label="Open architecture: Event-Driven — API Gateway, EventBridge &amp; Lambda" data-image="assets/images/architecture/event-driven-api-eventbridge.webp" data-alt="Event-Driven — API Gateway, EventBridge &amp; Lambda">
-          <img src="assets/images/architecture/event-driven-api-eventbridge.webp" alt="Event-Driven — API Gateway, EventBridge &amp; Lambda" width="640" height="360" loading="eager" fetchpriority="high" decoding="async">
-          <div class="image-overlay">
-            <span class="featured-badge">Architecture</span>
-          </div>
-        </div>
-        <div class="featured-project-content">
-          <div class="featured-project-head">
-            <h3>Event-Driven — API Gateway, EventBridge &amp; Lambda</h3>
-            <div class="project-logos">
-              <span class="proj-logo-badge aws-badge" title="AWS" aria-label="AWS"><i class="fab fa-aws proj-brand-icon proj-brand-icon--aws" aria-hidden="true"></i></span>
-            </div>
-          </div>
-          <p class="project-description">
-            Designed an event-driven system to enable asynchronous communication and reduce tight coupling between services, improving scalability and flexibility.
-          </p>
-          
-          <div class="key-features">
-            <h4><i class="fas fa-star"></i> Key Features</h4>
-            <ul class="features-list">
-              <li>Decoupled event-driven design</li>
-              <li>Efficient high-volume event handling</li>
-              <li>Resilient, independently scalable consumers</li>
-              <li>Observability hooks for tracing events across services</li>
-            </ul>
-          </div>
-          
-          <div class="tradeoffs">
-            <h4><i class="fas fa-balance-scale"></i> Tradeoffs</h4>
-            <p>Debugging and tracing events becomes more complex. Eventual consistency trade-offs.</p>
-          </div>
-          
-          <div class="services-used">
-            <h4>Services Used:</h4>
-            <div class="tech-stack">
-              <span class="tech-tag">Amazon API Gateway</span>
-              <span class="tech-tag">EventBridge</span>
-              <span class="tech-tag">Lambda</span>
-              <span class="tech-tag">CloudWatch</span>
-            </div>
-          </div>
-          <div class="featured-project-links">
-            <a href="https://github.com/VazeerShaik-AWS/AWS-Event-Driven-Architecture-API-Eventbridge-Lambda" target="_blank" rel="noopener noreferrer" class="github-link"><i class="fab fa-github"></i> GitHub Repository</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- PROJECT 4 -->
-      <div class="featured-project-card">
-        <div class="featured-project-image clickable-image" role="button" tabindex="0" aria-label="Open architecture: EKS Cluster with Custom VPC — Terraform" data-image="assets/images/architecture/eks-terraform-vpc.webp" data-alt="EKS Cluster with Custom VPC — Terraform">
-          <img src="assets/images/architecture/eks-terraform-vpc.webp" alt="EKS Cluster with Custom VPC — Terraform" width="640" height="360" loading="eager" fetchpriority="high" decoding="async">
-          <div class="image-overlay">
-            <span class="featured-badge">IaC · Kubernetes</span>
-          </div>
-        </div>
-        <div class="featured-project-content">
-          <div class="featured-project-head">
-            <h3>EKS Cluster with Custom VPC — Terraform</h3>
-            <div class="project-logos">
+      <article class="work-grid-card" data-work-category="iac">
+        <button type="button" class="work-grid-thumb clickable-image" aria-label="Open architecture: EKS Cluster with Custom VPC — Terraform" data-image="assets/images/architecture/eks-terraform-vpc.webp" data-alt="EKS Cluster with Custom VPC — Terraform">
+          <img src="assets/images/architecture/eks-terraform-vpc.webp" alt="" width="320" height="180" loading="lazy" decoding="async">
+          <span class="work-grid-badge">IaC · EKS</span>
+        </button>
+        <div class="work-grid-body">
+          <span class="work-grid-category">IaC · Kubernetes</span>
+          <div class="work-grid-title-row">
+            <h4>EKS Cluster with Custom VPC — Terraform</h4>
+            <div class="project-logos project-logos--compact">
               <span class="proj-logo-badge aws-badge" title="AWS" aria-label="AWS"><i class="fab fa-aws proj-brand-icon proj-brand-icon--aws" aria-hidden="true"></i></span>
               <span class="proj-logo-badge tf-badge" title="Terraform" aria-label="Terraform"><img src="assets/images/logos/terraform.png" alt="" class="tf-logo" width="18" height="18" decoding="async" aria-hidden="true"></span>
             </div>
           </div>
-          <p class="project-description">
-            Provisioned a production-grade Amazon EKS cluster inside a custom VPC using Terraform IaC — with public/private subnet segmentation, NAT Gateway, managed node group auto-scaling, IRSA, and CloudWatch logging.
-          </p>
+          <p class="work-grid-summary">Production-grade Amazon EKS cluster in a custom VPC — Terraform IaC with multi-AZ subnets, managed node groups, IRSA, and CloudWatch logging.</p>
 
           <div class="key-features">
             <h4><i class="fas fa-star"></i> Key Features</h4>
@@ -1363,41 +1268,42 @@
 
           <div class="services-used">
             <h4>Services Used:</h4>
-            <div class="tech-stack">
+            <div class="tech-stack work-grid-tags">
               <span class="tech-tag">Terraform</span>
               <span class="tech-tag">EKS</span>
               <span class="tech-tag">VPC</span>
               <span class="tech-tag">Managed Node Group</span>
               <span class="tech-tag">IRSA</span>
-              <span class="tech-tag">CloudWatch</span>
             </div>
           </div>
           <div class="featured-project-links">
-            <a href="https://github.com/VazeerShaik-AWS/TERRAFORM-aws-eks-cluster-with-custom-vpc" target="_blank" rel="noopener noreferrer" class="github-link"><i class="fab fa-github"></i> GitHub Repository</a>
+            <a href="https://github.com/VazeerShaik-AWS/TERRAFORM-aws-eks-cluster-with-custom-vpc" target="_blank" rel="noopener noreferrer" class="github-link" aria-label="View EKS Cluster with Custom VPC on GitHub"><i class="fab fa-github"></i> View on GitHub</a>
           </div>
         </div>
-      </div>
+      </article>
+    </div>
 
-      <!-- PROJECT 5 -->
-      <div class="featured-project-card">
-        <div class="featured-project-image clickable-image" role="button" tabindex="0" aria-label="Open architecture: Multi-Environment AWS Infrastructure — Terraform" data-image="assets/images/architecture/multi-env-terraform.webp" data-alt="Multi-Environment AWS Infrastructure — Terraform">
-          <img src="assets/images/architecture/multi-env-terraform.webp" alt="Multi-Environment AWS Infrastructure — Terraform" width="640" height="360" loading="eager" fetchpriority="high" decoding="async">
-          <div class="image-overlay">
-            <span class="featured-badge">IaC · Multi-Env</span>
-          </div>
-        </div>
-        <div class="featured-project-content">
-          <div class="featured-project-head">
-            <h3>Multi-Environment AWS Infrastructure — Terraform</h3>
-            <div class="project-logos">
+    <div class="projects-secondary-section more-work-section">
+
+      <div class="more-work-group">
+        <h4 class="more-work-group-title">Infrastructure as Code</h4>
+        <div class="more-work-group-grid">
+
+      <article class="work-grid-card" data-work-category="iac">
+        <button type="button" class="work-grid-thumb clickable-image" aria-label="Open architecture: Multi-Environment AWS Infrastructure — Terraform" data-image="assets/images/architecture/multi-env-terraform.webp" data-alt="Multi-Environment AWS Infrastructure — Terraform">
+          <img src="assets/images/architecture/multi-env-terraform.webp" alt="" width="320" height="180" loading="lazy" decoding="async">
+          <span class="work-grid-badge">IaC</span>
+        </button>
+        <div class="work-grid-body">
+          <span class="work-grid-category">IaC · Multi-Env</span>
+          <div class="work-grid-title-row">
+            <h4>Multi-Environment AWS Infrastructure — Terraform</h4>
+            <div class="project-logos project-logos--compact">
               <span class="proj-logo-badge aws-badge" title="AWS" aria-label="AWS"><i class="fab fa-aws proj-brand-icon proj-brand-icon--aws" aria-hidden="true"></i></span>
               <span class="proj-logo-badge tf-badge" title="Terraform" aria-label="Terraform"><img src="assets/images/logos/terraform.png" alt="" class="tf-logo" width="18" height="18" decoding="async" aria-hidden="true"></span>
             </div>
           </div>
-          <p class="project-description">
-            Provisioned isolated VPC and EC2 web servers across dev, stage, and prod using Terraform Workspaces.<br>
-            Each environment uses dedicated networking, environment-specific variables, and remote state in S3 with DynamoDB locking.
-          </p>
+          <p class="work-grid-summary">Provisioned isolated VPC and EC2 web servers across dev, stage, and prod using Terraform Workspaces. Each environment uses dedicated networking, environment-specific variables, and remote state in S3 with DynamoDB locking.</p>
 
           <div class="key-features">
             <h4><i class="fas fa-star"></i> Key Features</h4>
@@ -1416,7 +1322,7 @@
 
           <div class="services-used">
             <h4>Services Used:</h4>
-            <div class="tech-stack">
+            <div class="tech-stack work-grid-tags">
               <span class="tech-tag">Terraform</span>
               <span class="tech-tag">VPC</span>
               <span class="tech-tag">EC2</span>
@@ -1425,31 +1331,26 @@
             </div>
           </div>
           <div class="featured-project-links">
-            <a href="https://github.com/VazeerShaik-AWS/TERRAFORM-Multi-Environment-AWS-Infrastructure" target="_blank" rel="noopener noreferrer" class="github-link"><i class="fab fa-github"></i> GitHub Repository</a>
+            <a href="https://github.com/VazeerShaik-AWS/TERRAFORM-Multi-Environment-AWS-Infrastructure" target="_blank" rel="noopener noreferrer" class="github-link" aria-label="View Multi-Environment AWS Infrastructure on GitHub"><i class="fab fa-github"></i> View on GitHub</a>
           </div>
         </div>
-      </div>
+      </article>
 
-      <!-- PROJECT 6 -->
-      <div class="featured-project-card">
-        <div class="featured-project-image clickable-image" role="button" tabindex="0" aria-label="Open architecture: Terraform S3 Remote State with DynamoDB Locking" data-image="assets/images/architecture/terraform-s3-remote-state.webp" data-alt="Terraform S3 Remote State with DynamoDB Locking">
-          <img src="assets/images/architecture/terraform-s3-remote-state.webp" alt="Terraform S3 Remote State with DynamoDB Locking" width="640" height="360" loading="eager" fetchpriority="high" decoding="async">
-          <div class="image-overlay">
-            <span class="featured-badge">IaC · State Backend</span>
-          </div>
-        </div>
-        <div class="featured-project-content">
-          <div class="featured-project-head">
-            <h3>Terraform S3 Remote State with DynamoDB Locking</h3>
-            <div class="project-logos">
+      <article class="work-grid-card" data-work-category="iac">
+        <button type="button" class="work-grid-thumb clickable-image" aria-label="Open architecture: Terraform S3 Remote State with DynamoDB Locking" data-image="assets/images/architecture/terraform-s3-remote-state.webp" data-alt="Terraform S3 Remote State with DynamoDB Locking">
+          <img src="assets/images/architecture/terraform-s3-remote-state.webp" alt="" width="320" height="180" loading="lazy" decoding="async">
+          <span class="work-grid-badge">IaC</span>
+        </button>
+        <div class="work-grid-body">
+          <span class="work-grid-category">IaC · State Backend</span>
+          <div class="work-grid-title-row">
+            <h4>Terraform S3 Remote State with DynamoDB Locking</h4>
+            <div class="project-logos project-logos--compact">
               <span class="proj-logo-badge aws-badge" title="AWS" aria-label="AWS"><i class="fab fa-aws proj-brand-icon proj-brand-icon--aws" aria-hidden="true"></i></span>
               <span class="proj-logo-badge tf-badge" title="Terraform" aria-label="Terraform"><img src="assets/images/logos/terraform.png" alt="" class="tf-logo" width="18" height="18" decoding="async" aria-hidden="true"></span>
             </div>
           </div>
-          <p class="project-description">
-            Built a production-style Terraform remote backend using S3 for state storage and DynamoDB for apply locking.<br>
-            Includes a dedicated state-backend stack and workspace-based dev/prod deployments with SSM Parameter Store.
-          </p>
+          <p class="work-grid-summary">Built a production-style Terraform remote backend using S3 for state storage and DynamoDB for apply locking. Includes a dedicated state-backend stack and workspace-based dev/prod deployments with SSM Parameter Store.</p>
 
           <div class="key-features">
             <h4><i class="fas fa-star"></i> Key Features</h4>
@@ -1468,57 +1369,131 @@
 
           <div class="services-used">
             <h4>Services Used:</h4>
-            <div class="tech-stack">
+            <div class="tech-stack work-grid-tags">
               <span class="tech-tag">Terraform</span>
               <span class="tech-tag">S3</span>
               <span class="tech-tag">DynamoDB</span>
-              <span class="tech-tag">SSM Parameter Store</span>
+              <span class="tech-tag">SSM</span>
             </div>
           </div>
           <div class="featured-project-links">
-            <a href="https://github.com/VazeerShaik-AWS/TERRAFORM-S3-Remote-State-DynamoDB-Locking" target="_blank" rel="noopener noreferrer" class="github-link"><i class="fab fa-github"></i> GitHub Repository</a>
+            <a href="https://github.com/VazeerShaik-AWS/TERRAFORM-S3-Remote-State-DynamoDB-Locking" target="_blank" rel="noopener noreferrer" class="github-link" aria-label="View Terraform S3 Remote State on GitHub"><i class="fab fa-github"></i> View on GitHub</a>
           </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ADDITIONAL PROJECTS -->
-    <div class="additional-projects-heading">
-      <h3>More Projects</h3>
-    </div>
-    <div class="additional-projects-grid">
-      <article class="additional-project-card">
-        <div class="additional-card-top">
-          <span class="additional-card-icon additional-card-icon--cdn" aria-hidden="true"><i class="fas fa-globe"></i></span>
-          <div class="additional-card-head">
-            <span class="additional-card-category">CDN · Performance</span>
-            <div class="additional-card-title-row">
-              <h4>CloudFront Dynamic Content Acceleration</h4>
-              <div class="project-logos">
-                <span class="proj-logo-badge aws-badge" title="AWS" aria-label="AWS"><i class="fab fa-aws proj-brand-icon proj-brand-icon--aws" aria-hidden="true"></i></span>
-              </div>
-            </div>
-          </div>
-        </div>
-        <p class="additional-card-summary">Accelerated global content delivery using CDN edge locations and caching strategies to reduce latency and improve performance.</p>
-        <div class="additional-card-tags">
-          <span class="tech-tag">CloudFront</span>
-          <span class="tech-tag">AWS S3</span>
-        </div>
-        <p class="additional-card-tradeoff"><i class="fas fa-balance-scale" aria-hidden="true"></i><span>Improves global performance, but adds cache invalidation complexity and additional cost.</span></p>
-        <div class="additional-card-footer">
-          <a href="https://github.com/VazeerShaik-AWS/AWS-Cloudfront-Dynamic-Content-Acceleration" target="_blank" rel="noopener noreferrer" class="github-link additional-github-link"><i class="fab fa-github"></i> GitHub Repository</a>
         </div>
       </article>
 
-      <article class="additional-project-card">
+        </div>
+      </div>
+
+      <div class="more-work-group">
+        <h4 class="more-work-group-title">Serverless &amp; Events</h4>
+        <div class="more-work-group-grid">
+
+      <article class="work-grid-card" data-work-category="serverless">
+        <button type="button" class="work-grid-thumb clickable-image" aria-label="Open architecture: Serverless Messaging — SNS, SQS &amp; Lambda" data-image="assets/images/architecture/serverless-sns-sqs-lambda.webp" data-alt="Serverless Messaging — SNS, SQS &amp; Lambda">
+          <img src="assets/images/architecture/serverless-sns-sqs-lambda.webp" alt="" width="320" height="180" loading="lazy" decoding="async">
+          <span class="work-grid-badge">Serverless</span>
+        </button>
+        <div class="work-grid-body">
+          <span class="work-grid-category">Serverless · Messaging</span>
+          <div class="work-grid-title-row">
+            <h4>Serverless Messaging — SNS, SQS &amp; Lambda</h4>
+            <div class="project-logos project-logos--compact">
+              <span class="proj-logo-badge aws-badge" title="AWS" aria-label="AWS"><i class="fab fa-aws proj-brand-icon proj-brand-icon--aws" aria-hidden="true"></i></span>
+            </div>
+          </div>
+          <p class="work-grid-summary">Built a serverless messaging pipeline to ensure reliable and asynchronous communication between services. Designed to handle traffic spikes without data loss.</p>
+
+          <div class="key-features">
+            <h4><i class="fas fa-star"></i> Key Features</h4>
+            <ul class="features-list">
+              <li>Decoupled architecture</li>
+              <li>Event-driven auto-scaling with zero idle cost</li>
+              <li>Reliable message delivery with durable queues</li>
+              <li>CloudWatch visibility on queue depth and processing latency</li>
+            </ul>
+          </div>
+
+          <div class="tradeoffs">
+            <h4><i class="fas fa-balance-scale"></i> Tradeoffs</h4>
+            <p>Adds latency and requires handling message duplication and ordering.</p>
+          </div>
+
+          <div class="services-used">
+            <h4>Services Used:</h4>
+            <div class="tech-stack work-grid-tags">
+              <span class="tech-tag">Amazon SNS</span>
+              <span class="tech-tag">Amazon SQS</span>
+              <span class="tech-tag">CloudWatch</span>
+              <span class="tech-tag">AWS Lambda</span>
+            </div>
+          </div>
+          <div class="featured-project-links">
+            <a href="https://github.com/VazeerShaik-AWS/AWS-Serverless-Architecture-SNS-SQS-Lambda" target="_blank" rel="noopener noreferrer" class="github-link" aria-label="View Serverless Messaging on GitHub"><i class="fab fa-github"></i> View on GitHub</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="work-grid-card" data-work-category="serverless">
+        <button type="button" class="work-grid-thumb clickable-image" aria-label="Open architecture: Event-Driven — API Gateway, EventBridge &amp; Lambda" data-image="assets/images/architecture/event-driven-api-eventbridge.webp" data-alt="Event-Driven — API Gateway, EventBridge &amp; Lambda">
+          <img src="assets/images/architecture/event-driven-api-eventbridge.webp" alt="" width="320" height="180" loading="lazy" decoding="async">
+          <span class="work-grid-badge">Event-Driven</span>
+        </button>
+        <div class="work-grid-body">
+          <span class="work-grid-category">Serverless · Events</span>
+          <div class="work-grid-title-row">
+            <h4>Event-Driven — API Gateway, EventBridge &amp; Lambda</h4>
+            <div class="project-logos project-logos--compact">
+              <span class="proj-logo-badge aws-badge" title="AWS" aria-label="AWS"><i class="fab fa-aws proj-brand-icon proj-brand-icon--aws" aria-hidden="true"></i></span>
+            </div>
+          </div>
+          <p class="work-grid-summary">Designed an event-driven system to enable asynchronous communication and reduce tight coupling between services, improving scalability and flexibility.</p>
+
+          <div class="key-features">
+            <h4><i class="fas fa-star"></i> Key Features</h4>
+            <ul class="features-list">
+              <li>Decoupled event-driven design</li>
+              <li>Efficient high-volume event handling</li>
+              <li>Resilient, independently scalable consumers</li>
+              <li>Observability hooks for tracing events across services</li>
+            </ul>
+          </div>
+
+          <div class="tradeoffs">
+            <h4><i class="fas fa-balance-scale"></i> Tradeoffs</h4>
+            <p>Debugging and tracing events becomes more complex. Eventual consistency.</p>
+          </div>
+
+          <div class="services-used">
+            <h4>Services Used:</h4>
+            <div class="tech-stack work-grid-tags">
+              <span class="tech-tag">Amazon API Gateway</span>
+              <span class="tech-tag">EventBridge</span>
+              <span class="tech-tag">Lambda</span>
+              <span class="tech-tag">CloudWatch</span>
+            </div>
+          </div>
+          <div class="featured-project-links">
+            <a href="https://github.com/VazeerShaik-AWS/AWS-Event-Driven-Architecture-API-Eventbridge-Lambda" target="_blank" rel="noopener noreferrer" class="github-link" aria-label="View Event-Driven Architecture on GitHub"><i class="fab fa-github"></i> View on GitHub</a>
+          </div>
+        </div>
+      </article>
+
+        </div>
+      </div>
+
+      <div class="more-work-group">
+        <h4 class="more-work-group-title">Security &amp; Edge</h4>
+        <div class="more-work-group-grid more-work-group-grid--cards">
+
+      <article class="additional-project-card" data-work-category="security">
         <div class="additional-card-top">
           <span class="additional-card-icon additional-card-icon--security" aria-hidden="true"><i class="fas fa-shield-alt"></i></span>
           <div class="additional-card-head">
             <span class="additional-card-category">Security · Network</span>
             <div class="additional-card-title-row">
               <h4>Threat Hunting with AWS Network Firewall</h4>
-              <div class="project-logos">
+              <div class="project-logos project-logos--compact">
                 <span class="proj-logo-badge aws-badge" title="AWS" aria-label="AWS"><i class="fab fa-aws proj-brand-icon proj-brand-icon--aws" aria-hidden="true"></i></span>
               </div>
             </div>
@@ -1531,18 +1506,18 @@
         </div>
         <p class="additional-card-tradeoff"><i class="fas fa-balance-scale" aria-hidden="true"></i><span>Enhances network security, but increases latency and requires complex rule management.</span></p>
         <div class="additional-card-footer">
-          <a href="https://github.com/VazeerShaik-AWS/AWS-Network-Firewall-Threat-Detection" target="_blank" rel="noopener noreferrer" class="github-link additional-github-link"><i class="fab fa-github"></i> GitHub Repository</a>
+          <a href="https://github.com/VazeerShaik-AWS/AWS-Network-Firewall-Threat-Detection" target="_blank" rel="noopener noreferrer" class="github-link" aria-label="View Network Firewall Threat Detection on GitHub"><i class="fab fa-github"></i> View on GitHub</a>
         </div>
       </article>
 
-      <article class="additional-project-card">
+      <article class="additional-project-card" data-work-category="security">
         <div class="additional-card-top">
           <span class="additional-card-icon additional-card-icon--lambda" aria-hidden="true"><i class="fas fa-cogs"></i></span>
           <div class="additional-card-head">
             <span class="additional-card-category">Automation · Lambda</span>
             <div class="additional-card-title-row">
               <h4>Security Group Automation Lambda</h4>
-              <div class="project-logos">
+              <div class="project-logos project-logos--compact">
                 <span class="proj-logo-badge aws-badge" title="AWS" aria-label="AWS"><i class="fab fa-aws proj-brand-icon proj-brand-icon--aws" aria-hidden="true"></i></span>
               </div>
             </div>
@@ -1555,18 +1530,18 @@
         </div>
         <p class="additional-card-tradeoff"><i class="fas fa-balance-scale" aria-hidden="true"></i><span>Improves operational efficiency, but incorrect automation logic can lead to unintended access or service disruption.</span></p>
         <div class="additional-card-footer">
-          <a href="https://github.com/VazeerShaik-AWS/AWS-Security-Group-Automation-Lambda" target="_blank" rel="noopener noreferrer" class="github-link additional-github-link"><i class="fab fa-github"></i> GitHub Repository</a>
+          <a href="https://github.com/VazeerShaik-AWS/AWS-Security-Group-Automation-Lambda" target="_blank" rel="noopener noreferrer" class="github-link" aria-label="View Security Group Automation Lambda on GitHub"><i class="fab fa-github"></i> View on GitHub</a>
         </div>
       </article>
 
-      <article class="additional-project-card">
+      <article class="additional-project-card" data-work-category="security">
         <div class="additional-card-top">
           <span class="additional-card-icon additional-card-icon--vpc" aria-hidden="true"><i class="fas fa-network-wired"></i></span>
           <div class="additional-card-head">
             <span class="additional-card-category">Security · VPC</span>
             <div class="additional-card-title-row">
               <h4>VPC Network Access Analyzer</h4>
-              <div class="project-logos">
+              <div class="project-logos project-logos--compact">
                 <span class="proj-logo-badge aws-badge" title="AWS" aria-label="AWS"><i class="fab fa-aws proj-brand-icon proj-brand-icon--aws" aria-hidden="true"></i></span>
               </div>
             </div>
@@ -1579,9 +1554,37 @@
         </div>
         <p class="additional-card-tradeoff"><i class="fas fa-balance-scale" aria-hidden="true"></i><span>Provides visibility into access paths, but requires manual remediation and does not enforce changes automatically.</span></p>
         <div class="additional-card-footer">
-          <a href="https://github.com/VazeerShaik-AWS/AWS-VPC-Network-Access-Analyzer" target="_blank" rel="noopener noreferrer" class="github-link additional-github-link"><i class="fab fa-github"></i> GitHub Repository</a>
+          <a href="https://github.com/VazeerShaik-AWS/AWS-VPC-Network-Access-Analyzer" target="_blank" rel="noopener noreferrer" class="github-link" aria-label="View VPC Network Access Analyzer on GitHub"><i class="fab fa-github"></i> View on GitHub</a>
         </div>
       </article>
+
+      <article class="additional-project-card" data-work-category="aws">
+        <div class="additional-card-top">
+          <span class="additional-card-icon additional-card-icon--cdn" aria-hidden="true"><i class="fas fa-globe"></i></span>
+          <div class="additional-card-head">
+            <span class="additional-card-category">CDN · Edge</span>
+            <div class="additional-card-title-row">
+              <h4>CloudFront Dynamic Content Acceleration</h4>
+              <div class="project-logos project-logos--compact">
+                <span class="proj-logo-badge aws-badge" title="AWS" aria-label="AWS"><i class="fab fa-aws proj-brand-icon proj-brand-icon--aws" aria-hidden="true"></i></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="additional-card-summary">Accelerated global content delivery using CDN edge locations and caching strategies to reduce latency and improve performance.</p>
+        <div class="additional-card-tags">
+          <span class="tech-tag">CloudFront</span>
+          <span class="tech-tag">AWS S3</span>
+        </div>
+        <p class="additional-card-tradeoff"><i class="fas fa-balance-scale" aria-hidden="true"></i><span>Improves global performance, but adds cache invalidation complexity and additional cost.</span></p>
+        <div class="additional-card-footer">
+          <a href="https://github.com/VazeerShaik-AWS/AWS-Cloudfront-Dynamic-Content-Acceleration" target="_blank" rel="noopener noreferrer" class="github-link" aria-label="View CloudFront Dynamic Content Acceleration on GitHub"><i class="fab fa-github"></i> View on GitHub</a>
+        </div>
+      </article>
+
+        </div>
+      </div>
+
     </div>
     </div>
   </section>

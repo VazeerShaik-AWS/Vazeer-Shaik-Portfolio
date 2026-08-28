@@ -38,6 +38,7 @@ function initPortfolio() {
   setupImageLayoutRefresh();
   setupHeavyImageWarmup();
   setupFastTouch();
+  setupProjectFilters();
   setupScrollPerf();
 
   window.addEventListener('load', () => {
@@ -1834,12 +1835,116 @@ function setupImageLayoutRefresh() {
   );
 }
 
+// Selected Work category filters (Apple-style segmented control)
+function setupProjectFilters() {
+  const stage = document.querySelector('.projects-stage');
+  if (!stage) return;
+
+  const filterTrack = stage.querySelector('.project-filters');
+  const filters = stage.querySelectorAll('.project-filter');
+  const indicator = filterTrack?.querySelector('.project-filter-indicator');
+  const workItems = stage.querySelectorAll('[data-work-category]');
+  const primaryGrid = stage.querySelector('.projects-primary-grid');
+  const secondarySection = stage.querySelector('.projects-secondary-section');
+  const moreGroups = stage.querySelectorAll('.more-work-group');
+
+  if (!filters.length || !workItems.length) return;
+
+  function syncFilterIndicator() {
+    if (!filterTrack || !indicator) return;
+    const active = filterTrack.querySelector('.project-filter.is-active');
+    if (!active) return;
+
+    indicator.style.width = `${active.offsetWidth}px`;
+    indicator.style.transform = `translate3d(${active.offsetLeft}px, 0, 0)`;
+  }
+
+  function scrollActiveFilterIntoView() {
+    if (!filterTrack) return;
+    const active = filterTrack.querySelector('.project-filter.is-active');
+    if (!active || filterTrack.scrollWidth <= filterTrack.clientWidth + 1) return;
+
+    const trackRect = filterTrack.getBoundingClientRect();
+    const activeRect = active.getBoundingClientRect();
+    const activeCenter = activeRect.left + activeRect.width / 2;
+    const trackCenter = trackRect.left + trackRect.width / 2;
+    filterTrack.scrollLeft += activeCenter - trackCenter;
+  }
+
+  let indicatorRaf = 0;
+  function queueFilterIndicator() {
+    if (indicatorRaf) return;
+    indicatorRaf = requestAnimationFrame(() => {
+      indicatorRaf = 0;
+      syncFilterIndicator();
+      scrollActiveFilterIntoView();
+    });
+  }
+
+  queueFilterIndicator();
+  window.addEventListener('resize', queueFilterIndicator, { passive: true });
+  filterTrack?.addEventListener('scroll', queueFilterIndicator, { passive: true });
+
+  function syncFilteredLayout(filter) {
+    stage.classList.toggle('is-filter-active', filter !== 'all');
+    stage.dataset.activeFilter = filter;
+  }
+
+  function isVisible(item) {
+    return !item.classList.contains('is-work-hidden');
+  }
+
+  function syncSectionHeadings() {
+    const hasPrimary = primaryGrid
+      && [...primaryGrid.querySelectorAll('[data-work-category]')].some(isVisible);
+    const hasSecondary = secondarySection
+      && [...secondarySection.querySelectorAll('[data-work-category]')].some(isVisible);
+
+    primaryGrid?.classList.toggle('is-work-hidden', !hasPrimary);
+    secondarySection?.classList.toggle('is-work-hidden', !hasSecondary);
+
+    moreGroups.forEach((group) => {
+      const hasGroupItems = [...group.querySelectorAll('[data-work-category]')].some(isVisible);
+      group.classList.toggle('is-work-hidden', !hasGroupItems);
+    });
+  }
+
+  function applyFilter(filter) {
+    workItems.forEach((item) => {
+      const category = item.getAttribute('data-work-category');
+      const show = filter === 'all' || category === filter;
+      item.classList.toggle('is-work-hidden', !show);
+    });
+    syncSectionHeadings();
+    syncFilteredLayout(filter);
+  }
+
+  applyFilter('all');
+
+  filters.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const filter = btn.getAttribute('data-filter');
+      if (!filter) return;
+
+      filters.forEach((tab) => {
+        const active = tab === btn;
+        tab.classList.toggle('is-active', active);
+        tab.setAttribute('aria-selected', active ? 'true' : 'false');
+      });
+
+      applyFilter(filter);
+      queueFilterIndicator();
+      requestAnimationFrame(scrollActiveFilterIntoView);
+    });
+  });
+}
+
 // Touch targets + Apple silk scroll (desktop wheel lerp + native mobile momentum)
 function setupScrollPerf() {
   document.documentElement.style.scrollBehavior = 'auto';
 
   document.querySelectorAll(
-    '.featured-project-image.clickable-image, .badge-image-wrap.clickable-image'
+    '.featured-project-image.clickable-image, .work-grid-thumb.clickable-image, .badge-image-wrap.clickable-image'
   ).forEach((el) => {
     el.style.touchAction = 'pan-y';
   });
@@ -1858,7 +1963,7 @@ function setupFastTouch() {
   if (window.matchMedia('(hover: hover)').matches) return;
 
   document.querySelectorAll(
-    'a[href^="http"], a[href^="mailto:"], a[href$=".pdf"], .github-link, .additional-github-link, .verify-link, .hero-verify-credly, .cta-nav, .contact-buttons a, .contact-info-row'
+    'a[href^="http"], a[href^="mailto:"], a[href$=".pdf"], .github-link, .additional-github-link, .verify-link, .hero-verify-credly, .cta-nav, .contact-buttons a, .contact-info-row, .project-filter'
   ).forEach((el) => {
     el.style.touchAction = 'manipulation';
   });
