@@ -214,7 +214,7 @@ function scrollWindowTo(y, options = {}) {
   window.scrollTo(0, next);
 }
 
-/* --- Apple silk scroll — desktop wheel lerp + native mobile momentum --- */
+/* --- Native scroll momentum + nav-click ease --- */
 let pageScrollApi = null;
 let scrollIntentY = null;
 
@@ -237,33 +237,6 @@ function setupApplePageScroll() {
   let rafGate = 0;
   let paused = false;
 
-  // Desktop silk lerp state
-  let silkRaf = 0;
-  let silkCurrent = window.scrollY;
-  let silkTarget = window.scrollY;
-  let silkVelocity = 0;
-  let silkDriving = false;
-
-  const SILK_LERP = 0.105;
-  const SILK_VELOCITY_DECAY = 0.88;
-  const SILK_WHEEL_GAIN = 0.92;
-  const SILK_STOP = 0.35;
-
-  function maxScrollY() {
-    return Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
-  }
-
-  function clampScrollY(y) {
-    return Math.min(maxScrollY(), Math.max(0, y));
-  }
-
-  function syncSilkFromWindow() {
-    silkCurrent = window.scrollY;
-    silkTarget = window.scrollY;
-    silkVelocity = 0;
-    silkDriving = false;
-  }
-
   function markMoving() {
     if (paused || navScrollAnimating) return;
     if (!moving) {
@@ -274,146 +247,49 @@ function setupApplePageScroll() {
     settleTimer = setTimeout(() => {
       moving = false;
       setPageScrollingClass(false);
-    }, 150);
-  }
-
-  function applySilkScroll(y) {
-    const next = clampScrollY(y);
-    if (Math.abs(window.scrollY - next) < 0.08) return;
-    window.scrollTo(0, next);
-    silkCurrent = next;
-  }
-
-  function cancelSilkLoop() {
-    if (silkRaf) cancelAnimationFrame(silkRaf);
-    silkRaf = 0;
-  }
-
-  function silkFrame() {
-    silkRaf = 0;
-    if (paused || navScrollAnimating || reduced || isMobileNavLayout()) return;
-
-    const diff = silkTarget - silkCurrent;
-    silkVelocity *= SILK_VELOCITY_DECAY;
-    silkCurrent += diff * SILK_LERP + silkVelocity;
-
-    if (Math.abs(diff) < SILK_STOP && Math.abs(silkVelocity) < SILK_STOP) {
-      silkCurrent = silkTarget;
-      silkVelocity = 0;
-      silkDriving = false;
-      applySilkScroll(silkCurrent);
-      return;
-    }
-
-    applySilkScroll(silkCurrent);
-    markMoving();
-    silkRaf = requestAnimationFrame(silkFrame);
-  }
-
-  function requestSilkFrame() {
-    if (!silkRaf) silkRaf = requestAnimationFrame(silkFrame);
-  }
-
-  function normalizeWheelDelta(e) {
-    let delta = e.deltaY;
-    if (e.deltaMode === 1) delta *= 16;
-    if (e.deltaMode === 2) delta *= window.innerHeight;
-    return delta;
-  }
-
-  function onWheel(e) {
-    if (paused || navScrollAnimating || reduced || isMobileNavLayout()) {
-      markMoving();
-      return;
-    }
-    if (
-      document.documentElement.classList.contains('menu-open') ||
-      document.documentElement.classList.contains('modal-open')
-    ) {
-      return;
-    }
-    if (Math.abs(e.deltaX) > Math.abs(e.deltaY) * 1.2) return;
-
-    e.preventDefault();
-    silkDriving = true;
-
-    const delta = normalizeWheelDelta(e) * SILK_WHEEL_GAIN;
-    silkTarget = clampScrollY(silkTarget + delta);
-    silkVelocity += delta * 0.018;
-
-    requestSilkFrame();
-    markMoving();
+    }, reduced ? 72 : 96);
   }
 
   function onScroll() {
     if (rafGate) return;
     rafGate = requestAnimationFrame(() => {
       rafGate = 0;
-      if (!navScrollAnimating && !paused && !silkDriving) {
-        syncSilkFromWindow();
-      }
       markMoving();
     });
   }
 
-  function onIntent() {
-    markMoving();
-  }
-
   function onScrollEnd() {
     clearTimeout(settleTimer);
-    if (!silkDriving) syncSilkFromWindow();
-    settleTimer = setTimeout(() => {
-      moving = false;
-      setPageScrollingClass(false);
-      if (!silkDriving) syncSilkFromWindow();
-    }, 52);
-  }
-
-  function onResize() {
-    silkTarget = clampScrollY(silkTarget);
-    if (!silkDriving && !navScrollAnimating) syncSilkFromWindow();
+    moving = false;
+    setPageScrollingClass(false);
   }
 
   window.addEventListener('scroll', onScroll, { passive: true });
-  window.addEventListener('wheel', onWheel, { passive: false });
-  window.addEventListener('touchmove', onIntent, { passive: true });
-  window.addEventListener('resize', onResize, { passive: true });
   if ('onscrollend' in window) {
     window.addEventListener('scrollend', onScrollEnd, { passive: true });
   }
 
   return {
-    sync() {
-      syncSilkFromWindow();
-    },
+    sync() {},
     pause() {
       paused = true;
       moving = false;
-      silkDriving = false;
-      cancelSilkLoop();
-      syncSilkFromWindow();
       setPageScrollingClass(false);
       clearTimeout(settleTimer);
     },
     resume() {
       paused = false;
-      syncSilkFromWindow();
     },
     isMoving() {
-      return moving || silkDriving;
+      return moving;
     },
     destroy() {
       window.removeEventListener('scroll', onScroll);
-      window.removeEventListener('wheel', onWheel);
-      window.removeEventListener('touchmove', onIntent);
-      window.removeEventListener('resize', onResize);
       if ('onscrollend' in window) {
         window.removeEventListener('scrollend', onScrollEnd);
       }
-      cancelSilkLoop();
-      clearTimeout(settleTimer);
       if (rafGate) cancelAnimationFrame(rafGate);
+      clearTimeout(settleTimer);
       setPageScrollingClass(false);
     },
   };
@@ -433,7 +309,7 @@ function runProgrammaticScroll(targetY) {
   scrollIntentY = clampedY;
   lockNavSpyDuringScroll(longHaul);
   navScrollAnimating = true;
-  document.documentElement.classList.add('is-scrolling');
+  document.documentElement.classList.add('is-scrolling', 'is-nav-travel');
   document.documentElement.classList.toggle('is-long-travel', longHaul);
   if (!shouldPreserveNavPillAnim()) {
     navIndicatorApi?.stopAnim?.();
@@ -450,13 +326,10 @@ function runProgrammaticScroll(targetY) {
     return;
   }
 
-  // One calm frame after is-scrolling — compositor settles, then silk starts
+  // One frame — compositor settles, then nav ease starts
   requestAnimationFrame(() => {
     if (gen !== scrollGeneration || !navScrollAnimating) return;
-    requestAnimationFrame(() => {
-      if (gen !== scrollGeneration || !navScrollAnimating) return;
-      smoothScrollToExact(clampedY, { mode, longHaul }).then(done);
-    });
+    smoothScrollToExact(clampedY, { mode, longHaul }).then(done);
   });
 }
 
@@ -528,7 +401,7 @@ function shouldPreserveNavPillAnim() {
 
 function endPageScrolling() {
   if (!navScrollAnimating) {
-    document.documentElement.classList.remove('is-scrolling', 'is-long-travel');
+    document.documentElement.classList.remove('is-scrolling', 'is-long-travel', 'is-nav-travel');
   }
 }
 
@@ -1042,7 +915,8 @@ function setupIntersectionNavSpy(sections, mainNav, indicatorApi, setActiveSecti
         // Skip only during programmatic nav travel — manual scroll keeps live bubble spy
         if (
           navScrollAnimating ||
-          document.documentElement.classList.contains('is-scrolling')
+          document.documentElement.classList.contains('is-scrolling') ||
+          document.documentElement.classList.contains('is-page-scrolling')
         ) {
           return;
         }
@@ -1094,7 +968,13 @@ function setupIntersectionNavSpy(sections, mainNav, indicatorApi, setActiveSecti
     if (syncRaf) cancelAnimationFrame(syncRaf);
     syncRaf = requestAnimationFrame(() => {
       syncRaf = null;
-      if (!fromScrollEnd && document.documentElement.classList.contains('is-scrolling')) {
+      if (
+        !fromScrollEnd &&
+        (
+          document.documentElement.classList.contains('is-scrolling') ||
+          document.documentElement.classList.contains('is-page-scrolling')
+        )
+      ) {
         return;
       }
       if (navSpyPaused && !fromScrollEnd) return;
@@ -1182,9 +1062,9 @@ function setupIntersectionNavSpy(sections, mainNav, indicatorApi, setActiveSecti
 
   function onScrollActivity() {
     if (navScrollAnimating) return;
-    // Keep spy + bubble live during manual scroll — slide on section change
+    if (document.documentElement.classList.contains('is-page-scrolling')) return;
     clearTimeout(scrollEndTimer);
-    scrollEndTimer = setTimeout(finishPassiveScroll, 110);
+    scrollEndTimer = setTimeout(finishPassiveScroll, 140);
   }
 
   window.addEventListener('scroll', onScrollActivity, { passive: true });
@@ -1939,7 +1819,7 @@ function setupProjectFilters() {
   });
 }
 
-// Touch targets + Apple silk scroll (desktop wheel lerp + native mobile momentum)
+// Touch targets + native scroll momentum (mobile + desktop) + nav ease on click
 function setupScrollPerf() {
   document.documentElement.style.scrollBehavior = 'auto';
 

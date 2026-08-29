@@ -725,8 +725,8 @@ nav {
   background: var(--nav-frost-surface);
   border: 0.5px solid var(--nav-frost-border);
   box-shadow: var(--nav-ambient);
-  backdrop-filter: var(--nav-glass-blur);
-  -webkit-backdrop-filter: var(--nav-glass-blur);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   transition: none;
   pointer-events: auto;
   contain: none;
@@ -3830,8 +3830,8 @@ section.hero {
   background: var(--nav-frost-surface);
   border: 0.5px solid var(--nav-frost-border);
   box-shadow: var(--nav-ambient);
-  backdrop-filter: var(--nav-glass-blur);
-  -webkit-backdrop-filter: var(--nav-glass-blur);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   -webkit-tap-highlight-color: transparent;
   transform: translateZ(0);
   -webkit-font-smoothing: antialiased;
@@ -8521,40 +8521,60 @@ button.footer-logo-badge {
   body { background: white; color: black; }
 }
 
-/* ===== SCROLL — Apple silk travel (desktop lerp + nav ease) ===== */
+/* ===== SCROLL — native momentum + nav ease (zero wheel hijack) ===== */
 html.is-scrolling {
   scroll-snap-type: none;
   overscroll-behavior-y: none;
   scroll-behavior: auto;
 }
 
-@media (min-width: 769px) and (hover: hover) {
-  html.is-page-scrolling {
-    overscroll-behavior-y: none;
-  }
-
-  html.is-page-scrolling .site-content {
-    transform: translateZ(0);
-  }
+html.is-page-scrolling {
+  overscroll-behavior-y: none;
 }
 
-html.is-scrolling .site-content {
+html.is-scrolling .site-content,
+html.is-page-scrolling .site-content {
+  pointer-events: auto;
+}
+
+html.is-scrolling.is-nav-travel .site-content {
   pointer-events: none;
+}
+
+html.is-scrolling .nav-inner,
+html.is-page-scrolling .nav-inner,
+html.is-scrolling .project-filters,
+html.is-page-scrolling .project-filters {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+html.is-page-scrolling .nav-indicator,
+html.is-scrolling:not(.nav-pill-sliding) .nav-indicator {
+  transition: none !important;
+  will-change: auto !important;
 }
 
 html.is-scrolling.is-long-travel .featured-project-card,
 html.is-scrolling.is-long-travel .additional-project-card,
+html.is-scrolling.is-long-travel .work-grid-card,
 html.is-scrolling.is-long-travel .badge-item,
 html.is-scrolling.is-long-travel .achievement-card,
 html.is-scrolling.is-long-travel .skill-card,
 html.is-scrolling.is-long-travel .deploy-card,
-html.is-scrolling.is-long-travel .deploy-node {
+html.is-scrolling.is-long-travel .deploy-node,
+html.is-page-scrolling .featured-project-card,
+html.is-page-scrolling .additional-project-card,
+html.is-page-scrolling .work-grid-card,
+html.is-page-scrolling .badge-item,
+html.is-page-scrolling .achievement-card,
+html.is-page-scrolling .skill-card,
+html.is-page-scrolling .projects-stage,
+html.is-page-scrolling .about-stage,
+html.is-page-scrolling .credly-wallet,
+html.is-page-scrolling .skills-wallet,
+html.is-page-scrolling .contact-stage {
   contain: paint;
-}
-
-html.is-scrolling:not(.nav-pill-sliding) .nav-indicator {
-  transition: none !important;
-  will-change: auto !important;
 }
 
 html.nav-pill-sliding .nav-indicator {
@@ -8901,6 +8921,7 @@ html.is-page-scrolling .badge-image-wrap {
 .skills-wallet,
 .contact-stage,
 .projects-stage,
+.project-filters,
 .hero-credential-card,
 .hero-identity-line,
 .featured-badge,
@@ -8909,6 +8930,7 @@ html.is-page-scrolling .badge-image-wrap {
 .nav-links,
 .nav-indicator,
 .nav-toggle,
+.nav-inner,
 .glass,
 .glass-strong,
 .about-summary,
