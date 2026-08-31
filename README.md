@@ -8,7 +8,7 @@ The portfolio is deployed to AWS through a secure automated CI/CD pipeline using
 
 ## Live Deployments
 
-**Production — AWS CloudFront**  
+**Production — AWS**  
 https://www.vazeershaik.in/
 
 **Backup — GitHub Pages**  
