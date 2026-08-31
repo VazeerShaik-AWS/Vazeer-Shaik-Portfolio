@@ -95,7 +95,8 @@ function resolveSection(target) {
 }
 
 function getScrollGap() {
-  return isMobileNavLayout() ? 28 : 24;
+  /* Visual breathing room between nav pill bottom and section header */
+  return isMobileNavLayout() ? 16 : 14;
 }
 
 function measureNavBottom() {
@@ -180,27 +181,27 @@ function getScrollDuration(delta) {
   const mode = getTravelMode(distance);
 
   if (mode === 'long') {
-    if (distance > 3200) return mobile ? 1880 : 2040;
-    if (distance > 2200) return mobile ? 1720 : 1860;
-    return mobile ? 1580 : 1700;
+    if (distance > 3200) return mobile ? 1750 : 2040;
+    if (distance > 2200) return mobile ? 1580 : 1860;
+    return mobile ? 1450 : 1700;
   }
 
   if (mode === 'medium') {
-    if (distance > 1200) return mobile ? 1420 : 1540;
-    return mobile ? 1300 : 1420;
+    if (distance > 1200) return mobile ? 1280 : 1540;
+    return mobile ? 1180 : 1420;
   }
 
   const perceptual =
-    Math.sqrt(distance) * (mobile ? 20 : 21.2) +
-    Math.pow(distance, 0.38) * (mobile ? 10 : 10.8);
+    Math.sqrt(distance) * (mobile ? 19 : 21.2) +
+    Math.pow(distance, 0.38) * (mobile ? 9.2 : 10.8);
 
-  const base = mobile ? 580 : 620;
-  const min = mobile ? 780 : 860;
-  const max = mobile ? 1180 : 1280;
+  const base = mobile ? 540 : 620;
+  const min = mobile ? 720 : 860;
+  const max = mobile ? 1080 : 1280;
 
-  if (distance < 40) return mobile ? 640 : 700;
-  if (distance < 100) return mobile ? 780 : 860;
-  if (distance < 240) return mobile ? 920 : 1000;
+  if (distance < 40) return mobile ? 580 : 700;
+  if (distance < 100) return mobile ? 700 : 860;
+  if (distance < 240) return mobile ? 820 : 1000;
 
   return Math.min(max, Math.max(min, base + perceptual));
 }
@@ -217,6 +218,74 @@ function scrollWindowTo(y, options = {}) {
 /* --- Native scroll momentum + nav-click ease --- */
 let pageScrollApi = null;
 let scrollIntentY = null;
+
+function getScrollbarWidth() {
+  const diff = Math.max(0, window.innerWidth - document.documentElement.clientWidth);
+  if (diff > 0) return diff;
+
+  const root = document.documentElement;
+  const prev = root.style.overflow;
+  const before = root.clientWidth;
+  root.style.overflow = 'hidden';
+  const after = root.clientWidth;
+  root.style.overflow = prev;
+  return Math.max(0, after - before);
+}
+
+const pageScrollLock = { depth: 0, scrollY: 0 };
+
+function lockPageScroll() {
+  if (pageScrollLock.depth++ > 0) return;
+
+  pageScrollLock.scrollY = window.scrollY;
+  const body = document.body;
+  const root = document.documentElement;
+  const preWidth = root.clientWidth;
+
+  body.style.position = 'fixed';
+  body.style.top = `-${pageScrollLock.scrollY}px`;
+  body.style.left = '0';
+  body.style.right = '0';
+  body.style.width = `${preWidth}px`;
+
+  root.classList.add('modal-open');
+
+  const pad = Math.max(getScrollbarWidth(), root.clientWidth - preWidth);
+  if (pad > 0) {
+    body.style.paddingRight = `${pad}px`;
+    const nav = document.getElementById('mainNav');
+    if (nav) {
+      nav.style.paddingRight = `calc(max(var(--page-x), env(safe-area-inset-right)) + ${pad}px)`;
+    }
+  }
+}
+
+function unlockPageScroll() {
+  if (--pageScrollLock.depth > 0) return;
+
+  const y = pageScrollLock.scrollY;
+  pageScrollLock.depth = 0;
+  pageScrollLock.scrollY = 0;
+
+  const body = document.body;
+  const root = document.documentElement;
+
+  body.style.position = '';
+  body.style.top = '';
+  body.style.left = '';
+  body.style.right = '';
+  body.style.width = '';
+  body.style.paddingRight = '';
+
+  const nav = document.getElementById('mainNav');
+  if (nav) nav.style.paddingRight = '';
+
+  root.classList.remove('modal-open');
+  root.style.paddingRight = '';
+  root.style.removeProperty('--scroll-lock-pad');
+
+  window.scrollTo(0, y);
+}
 
 function pausePageScroll() {
   pageScrollApi?.pause?.();
@@ -247,7 +316,7 @@ function setupApplePageScroll() {
     settleTimer = setTimeout(() => {
       moving = false;
       setPageScrollingClass(false);
-    }, reduced ? 72 : 96);
+    }, reduced ? 56 : 72);
   }
 
   function onScroll() {
@@ -523,23 +592,46 @@ function finishProgrammaticScroll() {
   navScrollAnimating = false;
   detachScrollInterrupt();
 
-  // Snap to final anchor — remeasure once so every nav click lands under the bar
-  let landedY = scrollIntentY != null ? scrollIntentY : window.scrollY;
-  if (userNavTarget && userNavTarget !== 'top') {
-    const section = document.getElementById(userNavTarget);
-    if (section) landedY = getSectionScrollTop(section);
+  const targetId =
+    userNavTarget && userNavTarget !== 'top'
+      ? userNavTarget
+      : null;
+
+  function snapToTarget() {
+    if (targetId) {
+      const section = document.getElementById(targetId);
+      if (section) {
+        refreshNavMetrics();
+        scrollWindowTo(getSectionScrollTop(section), { snap: true });
+        return;
+      }
+    }
+    if (scrollIntentY != null) {
+      scrollWindowTo(scrollIntentY, { snap: true });
+    }
   }
+
   scrollIntentY = null;
-  scrollWindowTo(landedY, { snap: true });
+  snapToTarget();
   pageScrollApi?.sync?.();
   resumePageScroll();
   clearNavScrollLock();
 
   requestAnimationFrame(() => {
     endPageScrolling();
+    refreshNavMetrics();
+    if (targetId) {
+      const section = document.getElementById(targetId);
+      if (section) scrollWindowTo(getSectionScrollTop(section), { snap: true });
+    }
 
     const afterScrollWork = () => {
       if (navScrollAnimating) return;
+      refreshNavMetrics();
+      if (targetId) {
+        const section = document.getElementById(targetId);
+        if (section) scrollWindowTo(getSectionScrollTop(section), { snap: true });
+      }
       cacheScrollLayout(document.querySelectorAll('section[id]'));
       navSpyApi?.sync?.(true);
       if (!isMobileNavLayout()) {
@@ -552,9 +644,9 @@ function finishProgrammaticScroll() {
     };
 
     if ('requestIdleCallback' in window) {
-      requestIdleCallback(afterScrollWork, { timeout: 200 });
+      requestIdleCallback(afterScrollWork, { timeout: 80 });
     } else {
-      setTimeout(afterScrollWork, 40);
+      setTimeout(afterScrollWork, 32);
     }
   });
 }
@@ -1203,6 +1295,10 @@ function setupNavigation() {
       navSpyApi?.refreshSpy?.();
       indicatorApi?.refreshMetrics?.();
       navSpyApi?.sync(false);
+      if (!navScrollAnimating && lastNavSection && lastNavSection !== 'top') {
+        const section = document.getElementById(lastNavSection);
+        if (section) scrollWindowTo(getSectionScrollTop(section), { snap: true });
+      }
     });
   }
 
@@ -1365,7 +1461,7 @@ function setupMobileNav() {
     };
 
     links.addEventListener('transitionend', onTransitionEnd);
-    setTimeout(finish, 420);
+    setTimeout(finish, 300);
   }
 
   function navigateTo(targetEl) {
@@ -1375,14 +1471,12 @@ function setupMobileNav() {
     runAfterMenuClose(wasOpen, () => {
       refreshNavMetrics();
       requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          const sectionId = targetEl?.getAttribute?.('id') || null;
-          if (sectionId === 'top') {
-            scrollToY(0);
-            return;
-          }
-          if (targetEl) scrollToSection(targetEl);
-        });
+        const sectionId = targetEl?.getAttribute?.('id') || null;
+        if (sectionId === 'top') {
+          scrollToY(0);
+          return;
+        }
+        if (targetEl) scrollToSection(targetEl);
       });
     });
   }
@@ -1463,6 +1557,8 @@ function setupModals() {
   let lastActive = null;
   let imageLoadToken = 0;
 
+  if (modal) document.body.appendChild(modal);
+
   function resolveImageSrc(triggerEl, preferredSrc) {
     if (preferredSrc) return preferredSrc;
     if (!triggerEl) return '';
@@ -1506,8 +1602,10 @@ function setupModals() {
 
     const finishLoad = () => {
       if (token !== imageLoadToken) return;
+      modalImage.classList.remove('is-loading');
     };
 
+    modalImage.classList.add('is-loading');
     modalImage.onload = finishLoad;
     modalImage.onerror = finishLoad;
 
@@ -1518,11 +1616,17 @@ function setupModals() {
       modalImage.src = resolvedSrc;
     }
 
-    modal.classList.add('is-open');
-    modal.setAttribute('aria-hidden', 'false');
-    document.documentElement.classList.add('modal-open');
+    if (modalImage.complete && modalImage.naturalWidth > 0) {
+      modalImage.classList.remove('is-loading');
+    }
 
-    requestAnimationFrame(() => closeBtn?.focus());
+    lockPageScroll();
+
+    requestAnimationFrame(() => {
+      modal.classList.add('is-open');
+      modal.setAttribute('aria-hidden', 'false');
+      requestAnimationFrame(() => closeBtn?.focus());
+    });
   }
 
   function closeModal() {
@@ -1531,11 +1635,12 @@ function setupModals() {
     imageLoadToken++;
     modal.classList.remove('is-open');
     modal.setAttribute('aria-hidden', 'true');
-    document.documentElement.classList.remove('modal-open');
+    unlockPageScroll();
 
     if (modalImage) {
       modalImage.onload = null;
       modalImage.onerror = null;
+      modalImage.classList.remove('is-loading');
       modalImage.removeAttribute('src');
       modalImage.alt = '';
     }

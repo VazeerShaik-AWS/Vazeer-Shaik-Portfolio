@@ -731,7 +731,7 @@
         <a href="#top" class="logo logo--vs" id="logo-vs-btn" aria-label="Vazeer Basha Shaik — back to top">
           <span class="logo-monogram brand-monogram" aria-hidden="true"><span class="monogram-letter monogram-letter--v">V</span><span class="monogram-letter monogram-letter--s">S</span></span>
         </a>
-        <a href="#portfolio-deployment" class="nav-live-badge" title="Live on AWS — GitHub Actions CI/CD + CloudFront">
+        <a href="#portfolio-deployment" class="nav-live-badge" title="Live on AWS — OIDC-secured GitHub Actions + CloudFront">
           <span class="nav-live-dot" aria-hidden="true"></span> Live on AWS
         </a>
       </div>
@@ -844,87 +844,139 @@
   <section id="portfolio-deployment" class="portfolio-deployment">
     <div class="section-header">
       <h2 class="section-title">Delivery Pipeline</h2>
-      <p class="section-desc">Automated release from GitHub Actions to private S3 and CloudFront — the same CI/CD path running this portfolio.</p>
+      <p class="section-desc">Secure CI/CD from GitHub to CloudFront — the pipeline running this site.</p>
     </div>
 
     <div class="deploy-card">
 
+      <div class="deploy-security-banner" role="note">
+        <span class="deploy-security-icon" aria-hidden="true"><i class="fas fa-shield-halved"></i></span>
+        <div class="deploy-security-copy">
+          <strong>Zero long-lived keys</strong>
+          <p>GitHub OIDC and STS temporary credentials replace permanent AWS access keys — no secrets stored in GitHub.</p>
+        </div>
+      </div>
+
       <div class="deploy-metrics" aria-label="Portfolio pipeline facts">
-        <span class="deploy-metric"><i class="fas fa-bolt" aria-hidden="true"></i> Merge-triggered workflow</span>
+        <span class="deploy-metric"><i class="fas fa-fingerprint" aria-hidden="true"></i> GitHub OIDC federated auth</span>
+        <span class="deploy-metric-sep" aria-hidden="true">·</span>
+        <span class="deploy-metric"><i class="fas fa-user-shield" aria-hidden="true"></i> Least-privilege IAM role</span>
         <span class="deploy-metric-sep" aria-hidden="true">·</span>
         <span class="deploy-metric"><i class="fas fa-shield-halved" aria-hidden="true"></i> Private S3 + CloudFront OAC</span>
         <span class="deploy-metric-sep" aria-hidden="true">·</span>
-        <span class="deploy-metric"><i class="fas fa-globe" aria-hidden="true"></i> Dual deploy — AWS + GitHub Pages backup</span>
+        <span class="deploy-metric"><i class="fas fa-globe" aria-hidden="true"></i> AWS production + GitHub Pages backup</span>
       </div>
 
-      <!-- FLOW DIAGRAM -->
-      <div class="deploy-diagram" role="img" aria-label="CI/CD pipeline: GitHub → Actions → S3 → CloudFront → Global Users">
-        <div class="deploy-node">
-          <div class="deploy-node-icon"><i class="fab fa-github"></i></div>
-          <strong>GitHub</strong>
-          <span>Merge to main</span>
+      <div class="deploy-phases" role="img" aria-label="Secure CI/CD pipeline: authenticate with GitHub OIDC and IAM, then deploy to S3, CloudFront, and live site">
+
+        <div class="deploy-phase">
+          <div class="deploy-phase-bridge deploy-phase-bridge--auth">
+            <span class="deploy-phase-bridge-line"></span>
+            <span class="deploy-phase-bridge-bubble deploy-phase-bridge-bubble--auth">
+              <i class="fas fa-shield-halved" aria-hidden="true"></i>
+              <span class="deploy-phase-bridge-label">Authenticate</span>
+            </span>
+            <span class="deploy-phase-bridge-line"></span>
+          </div>
+          <div class="deploy-diagram deploy-diagram--phase">
+            <div class="deploy-node">
+              <div class="deploy-node-icon node-actions"><i class="fas fa-gears"></i></div>
+              <strong>GitHub Actions</strong>
+              <span>Merge workflow</span>
+            </div>
+            <div class="deploy-connector"><span class="deploy-line"></span><i class="fas fa-angle-right"></i></div>
+            <div class="deploy-node">
+              <div class="deploy-node-icon node-oidc"><i class="fas fa-fingerprint"></i></div>
+              <strong>GitHub OIDC</strong>
+              <span>Federated trust</span>
+            </div>
+            <div class="deploy-connector"><span class="deploy-line"></span><i class="fas fa-angle-right"></i></div>
+            <div class="deploy-node">
+              <div class="deploy-node-icon node-iam"><i class="fas fa-user-shield"></i></div>
+              <strong>AWS IAM Role</strong>
+              <span>Least privilege</span>
+            </div>
+            <div class="deploy-connector"><span class="deploy-line"></span><i class="fas fa-angle-right"></i></div>
+            <div class="deploy-node">
+              <div class="deploy-node-icon node-sts"><i class="fas fa-clock"></i></div>
+              <strong>STS Credentials</strong>
+              <span>Short-lived</span>
+            </div>
+          </div>
         </div>
-        <div class="deploy-connector"><span class="deploy-line"></span><i class="fas fa-angle-right"></i></div>
-        <div class="deploy-node">
-          <div class="deploy-node-icon node-actions"><i class="fas fa-gears"></i></div>
-          <strong>GitHub Actions</strong>
-          <span>Build &amp; deploy</span>
+
+        <div class="deploy-phase-bridge" aria-hidden="true">
+          <span class="deploy-phase-bridge-line"></span>
+          <span class="deploy-phase-bridge-bubble deploy-phase-bridge-bubble--deploy">
+            <i class="fas fa-arrow-down" aria-hidden="true"></i>
+            <span class="deploy-phase-bridge-label">Deploy</span>
+          </span>
+          <span class="deploy-phase-bridge-line"></span>
         </div>
-        <div class="deploy-connector"><span class="deploy-line"></span><i class="fas fa-angle-right"></i></div>
-        <div class="deploy-node">
-          <div class="deploy-node-icon node-s3"><i class="fas fa-database"></i></div>
-          <strong>Amazon S3</strong>
-          <span>Private origin</span>
+
+        <div class="deploy-phase deploy-phase--continued">
+          <div class="deploy-diagram deploy-diagram--phase">
+            <div class="deploy-node">
+              <div class="deploy-node-icon node-s3"><i class="fas fa-database"></i></div>
+              <strong>Amazon S3</strong>
+              <span>Private origin</span>
+            </div>
+            <div class="deploy-connector"><span class="deploy-line"></span><i class="fas fa-angle-right"></i></div>
+            <div class="deploy-node">
+              <div class="deploy-node-icon node-invalidate"><i class="fas fa-arrows-rotate"></i></div>
+              <strong>Invalidation</strong>
+              <span>Edge refresh</span>
+            </div>
+            <div class="deploy-connector"><span class="deploy-line"></span><i class="fas fa-angle-right"></i></div>
+            <div class="deploy-node">
+              <div class="deploy-node-icon node-cf"><i class="fas fa-cloud"></i></div>
+              <strong>CloudFront</strong>
+              <span>CDN + OAC</span>
+            </div>
+            <div class="deploy-connector"><span class="deploy-line"></span><i class="fas fa-angle-right"></i></div>
+            <div class="deploy-node">
+              <div class="deploy-node-icon node-live"><i class="fas fa-circle-check"></i></div>
+              <strong>Live Portfolio</strong>
+              <span>vazeershaik.in</span>
+            </div>
+          </div>
         </div>
-        <div class="deploy-connector"><span class="deploy-line"></span><i class="fas fa-angle-right"></i></div>
-        <div class="deploy-node">
-          <div class="deploy-node-icon node-cf"><i class="fas fa-globe"></i></div>
-          <strong>CloudFront</strong>
-          <span>CDN with OAC</span>
-        </div>
-        <div class="deploy-connector"><span class="deploy-line"></span><i class="fas fa-angle-right"></i></div>
-        <div class="deploy-node">
-          <div class="deploy-node-icon node-users"><i class="fas fa-users"></i></div>
-          <strong>Global Users</strong>
-          <span>Worldwide access</span>
-        </div>
+
       </div>
 
-      <!-- PIPELINE STEPS -->
       <div class="deploy-steps">
         <div class="deploy-step-item">
           <span class="deploy-step-num">01</span>
           <div class="deploy-step-body">
             <strong>Trigger on Merge</strong>
-            <p>A push to the main branch automatically initiates the GitHub Actions workflow.</p>
+            <p>A push to <code>main</code> starts the GitHub Actions workflow — the single source of truth for AWS production and GitHub Pages backup.</p>
           </div>
         </div>
         <div class="deploy-step-item">
           <span class="deploy-step-num">02</span>
           <div class="deploy-step-body">
-            <strong>Secure AWS Authentication</strong>
-            <p>GitHub Actions authenticates with AWS using IAM credentials stored in GitHub Secrets.</p>
+            <strong>Federated Authentication</strong>
+            <p>GitHub OIDC assumes an AWS IAM deployment role. STS issues temporary credentials per run — no permanent access keys or GitHub Secrets.</p>
           </div>
         </div>
         <div class="deploy-step-item">
           <span class="deploy-step-num">03</span>
           <div class="deploy-step-body">
-            <strong>Deploy to S3</strong>
-            <p>Static assets sync to a private S3 bucket with automatic removal of stale files.</p>
+            <strong>Deploy to Private S3</strong>
+            <p>Static assets sync to a private S3 bucket with stale-file cleanup. CloudFront OAC is the only read path to the origin.</p>
           </div>
         </div>
         <div class="deploy-step-item">
           <span class="deploy-step-num">04</span>
           <div class="deploy-step-body">
-            <strong>Refresh Global Cache</strong>
-            <p>CloudFront invalidation ensures updated content reaches users worldwide within seconds.</p>
+            <strong>Global Edge Delivery</strong>
+            <p>CloudFront invalidation refreshes the CDN cache and publishes the live portfolio worldwide within seconds.</p>
           </div>
         </div>
       </div>
 
-      <!-- REPO BUTTON -->
       <div class="deploy-repo">
-        <a href="https://github.com/VazeerShaik-AWS/vazeer-portfolio" target="_blank" rel="noopener noreferrer" class="github-link">
+        <a href="https://github.com/VazeerShaik-AWS/Vazeer-Shaik-Portfolio" target="_blank" rel="noopener noreferrer" class="github-link" aria-label="View portfolio repository on GitHub">
           <i class="fab fa-github"></i> View on GitHub
         </a>
       </div>
@@ -1812,10 +1864,10 @@
   <div id="imageModal" class="image-modal" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Image preview">
     <div class="modal-overlay" aria-hidden="true"></div>
     <div class="modal-dialog">
-      <button type="button" class="modal-close" aria-label="Close image preview">
-        <i class="fas fa-times" aria-hidden="true"></i>
-      </button>
       <div class="modal-content">
+        <button type="button" class="modal-close" aria-label="Close image preview">
+          <i class="fas fa-times" aria-hidden="true"></i>
+        </button>
         <div class="modal-image-frame">
           <img id="modalImage" alt="" decoding="async">
         </div>
