@@ -34,40 +34,21 @@ The GitHub repository serves as the single source of truth for both AWS producti
 
 ## Deployment Flow
 
-Code Change
-    |
-    v
-Git Commit
-    |
-    v
-GitHub Push
-    |
-    v
-GitHub Actions
-    |
-    v
-GitHub OIDC
-    |
-    v
-AWS IAM Role
-    |
-    v
-AWS STS Temporary Credentials
-    |
-    +----------------------+
-    |                      |
-    v                      v
-Amazon S3          CloudFront Invalidation
-    |                      |
-    +----------+-----------+
-               |
-               v
-        Amazon CloudFront
-               |
-               v
-     https://www.vazeershaik.in/
+```mermaid
+flowchart TD
+    A[Code Change] --> B[Git Commit]
+    B --> C[GitHub Push]
+    C --> D[GitHub Actions]
+    D --> E[GitHub OIDC]
+    E --> F[AWS IAM Deployment Role]
+    F --> G[AWS STS Temporary Credentials]
+    G --> H[Amazon S3]
+    H --> I[CloudFront Invalidation]
+    I --> J[Amazon CloudFront]
+    J --> K[Production Portfolio]
+```
 
----
+Production: https://www.vazeershaik.in/
 
 ## Contact
 
