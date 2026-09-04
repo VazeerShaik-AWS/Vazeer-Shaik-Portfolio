@@ -869,15 +869,16 @@
 
       <div class="deploy-phases" role="img" aria-label="Secure CI/CD pipeline: authenticate with GitHub OIDC and IAM, then deploy to S3, CloudFront, and live site">
 
-        <div class="deploy-phase">
-          <div class="deploy-phase-bridge deploy-phase-bridge--auth">
-            <span class="deploy-phase-bridge-line"></span>
-            <span class="deploy-phase-bridge-bubble deploy-phase-bridge-bubble--auth">
-              <i class="fas fa-shield-halved" aria-hidden="true"></i>
-              <span class="deploy-phase-bridge-label">Authenticate</span>
-            </span>
-            <span class="deploy-phase-bridge-line"></span>
-          </div>
+        <div class="deploy-phase-bridge deploy-phase-bridge--auth">
+          <span class="deploy-phase-bridge-line"></span>
+          <span class="deploy-phase-bridge-bubble deploy-phase-bridge-bubble--auth">
+            <i class="fas fa-shield-halved" aria-hidden="true"></i>
+            <span class="deploy-phase-bridge-label">Authenticate</span>
+          </span>
+          <span class="deploy-phase-bridge-line"></span>
+        </div>
+
+        <div class="deploy-phase deploy-phase--auth">
           <div class="deploy-diagram deploy-diagram--phase">
             <div class="deploy-node">
               <div class="deploy-node-icon node-actions"><i class="fas fa-gears"></i></div>

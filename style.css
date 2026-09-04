@@ -3027,6 +3027,10 @@ section.hero {
   gap: 12px;
 }
 
+.deploy-phase--auth {
+  gap: 10px;
+}
+
 @keyframes deployBridgePulse {
   0%, 100% {
     transform: translateY(0);
@@ -7410,27 +7414,41 @@ button.footer-logo-badge {
   }
 
   .deploy-phase {
+    overflow: visible;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .deploy-phase > .deploy-phase-bridge {
+    flex-shrink: 0;
+    width: 100%;
+    position: relative;
+    z-index: 1;
+  }
+
+  .deploy-diagram--phase {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: stretch;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    padding: 2px 4px 6px;
     overflow-x: auto;
     overscroll-behavior-x: contain;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     scroll-padding-inline: 12px;
+    scroll-snap-type: x proximity;
     touch-action: pan-x pan-y;
-    mask-image: linear-gradient(to right, transparent, #000 10px, #000 calc(100% - 10px), transparent);
-    -webkit-mask-image: linear-gradient(to right, transparent, #000 10px, #000 calc(100% - 10px), transparent);
+    mask-image: linear-gradient(to right, transparent, #000 12px, #000 calc(100% - 12px), transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 12px, #000 calc(100% - 12px), transparent);
   }
 
-  .deploy-phase::-webkit-scrollbar {
+  .deploy-diagram--phase::-webkit-scrollbar {
     display: none;
-  }
-
-  .deploy-diagram--phase {
-    flex-direction: row;
-    flex-wrap: nowrap;
-    justify-content: flex-start;
-    width: max-content;
-    max-width: none;
-    padding: 2px 4px 6px;
   }
 
   .deploy-diagram--phase .deploy-node {
@@ -7438,6 +7456,7 @@ button.footer-logo-badge {
     max-width: none;
     padding: 14px 10px;
     flex: 0 0 auto;
+    scroll-snap-align: start;
   }
 
   .deploy-diagram--phase .deploy-node-icon {
