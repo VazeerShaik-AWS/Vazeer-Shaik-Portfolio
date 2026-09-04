@@ -4214,9 +4214,14 @@ section.hero {
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 14px;
   overflow: hidden;
-  background: #fff;
+  background: #ffffff;
   cursor: pointer;
   aspect-ratio: 16 / 10;
+  contain: layout style;
+}
+
+.work-grid-thumb:not(.is-diagram-ready) {
+  background: #e2e8f0;
 }
 
 .work-grid-thumb img {
@@ -4225,6 +4230,16 @@ section.hero {
   object-fit: contain;
   object-position: center;
   display: block;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+.work-grid-thumb:not(.is-diagram-ready) img {
+  opacity: 0;
+}
+
+.work-grid-thumb.is-diagram-ready img {
+  opacity: 1;
 }
 
 .work-grid-badge {
@@ -4568,12 +4583,16 @@ section.hero {
   overflow: hidden;
   cursor: pointer;
   line-height: 0;
-  background: #cbd5e1;
+  background: #ffffff;
   aspect-ratio: 16 / 9;
   width: 100%;
-  contain: layout style paint;
+  contain: layout style;
   content-visibility: visible;
   touch-action: pan-y;
+}
+
+.featured-project-image:not(.is-diagram-ready) {
+  background: #e2e8f0;
 }
 
 .featured-project-image > img {
@@ -4587,6 +4606,16 @@ section.hero {
   background: #ffffff;
   transition: transform 0.48s cubic-bezier(0.25, 0.1, 0.25, 1);
   will-change: auto;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+.featured-project-image:not(.is-diagram-ready) > img {
+  opacity: 0;
+}
+
+.featured-project-image.is-diagram-ready > img {
+  opacity: 1;
 }
 
 .featured-project-image:hover {
@@ -9104,11 +9133,16 @@ html.is-scroll-momentum .hero-badge-shine {
 
 html.is-scrolling .featured-project-image > img,
 html.is-page-scrolling .featured-project-image > img,
+html.is-scroll-momentum .featured-project-image > img,
+html.is-scrolling .work-grid-thumb > img,
+html.is-page-scrolling .work-grid-thumb > img,
+html.is-scroll-momentum .work-grid-thumb > img,
 html.is-scrolling .badge-image-actual,
 html.is-page-scrolling .badge-image-actual {
   transition: none !important;
-  transform: none !important;
+  transform: translateZ(0) !important;
   will-change: auto !important;
+  opacity: 1 !important;
 }
 
 html.is-scrolling .badge-image-wrap,
@@ -9885,5 +9919,25 @@ html.is-page-scrolling .badge-image-wrap {
 
   html.platform-desktop .site-content {
     scroll-behavior: auto;
+  }
+
+  /* Projects — no paint containment during scroll (prevents diagram half-flash) */
+  html.platform-desktop.is-page-scrolling #projects .featured-project-card,
+  html.platform-desktop.is-page-scrolling #projects .work-grid-card,
+  html.platform-desktop.is-scroll-momentum #projects .featured-project-card,
+  html.platform-desktop.is-scroll-momentum #projects .work-grid-card,
+  html.platform-desktop.is-scrolling.is-long-travel #projects .featured-project-card {
+    contain: none;
+  }
+
+  html.platform-desktop .featured-project-image,
+  html.platform-desktop .work-grid-thumb {
+    contain: layout style;
+  }
+
+  html.platform-desktop .featured-project-image > img,
+  html.platform-desktop .work-grid-thumb > img {
+    transform: translateZ(0);
+    backface-visibility: hidden;
   }
 }

@@ -1741,55 +1741,72 @@ function setupModals() {
   });
 }
 
-// Prefetch + decode heavy images early (Projects diagrams + Cloud Quest badges)
+// Prefetch + decode ALL project architecture diagrams before scroll (zero half-image flash)
 function setupHeavyImageWarmup() {
-  const heavyImgs = Array.from(
-    document.querySelectorAll(
-      '#projects .featured-project-image img, #certifications .badge-image-actual'
-    )
+  const diagramImgs = Array.from(
+    document.querySelectorAll('#projects img[src*="architecture/"]')
   );
+  const badgeImgs = Array.from(
+    document.querySelectorAll('#certifications .badge-image-actual')
+  );
+  const heavyImgs = [...diagramImgs, ...badgeImgs];
   if (!heavyImgs.length) return;
 
-  let warmed = false;
-
-  function warm() {
-    if (warmed) return;
-    warmed = true;
-
-    // Decode real DOM images immediately — no idle delay / no stagger lag
-    heavyImgs.forEach((img) => {
-      if (typeof img.decode === 'function') {
-        img.decode().catch(() => {});
-      }
-      // Force cache hit if browser deferred low-priority loads
-      if (!img.complete) {
-        const src = img.currentSrc || img.getAttribute('src');
-        if (src) {
-          const probe = new Image();
-          probe.src = src;
-        }
-      }
-    });
+  function markDiagramReady(img) {
+    img.classList.add('is-diagram-ready');
+    img.closest('.featured-project-image, .work-grid-thumb')?.classList.add('is-diagram-ready');
   }
 
-  // Start ASAP after first paint
-  requestAnimationFrame(() => requestAnimationFrame(warm));
-  setTimeout(warm, 120);
+  function decodeOne(img) {
+    const finish = () => markDiagramReady(img);
+    if (img.complete && img.naturalWidth > 0) {
+      if (typeof img.decode === 'function') {
+        img.decode().then(finish).catch(finish);
+      } else {
+        finish();
+      }
+      return;
+    }
+    img.addEventListener('load', () => {
+      if (typeof img.decode === 'function') {
+        img.decode().then(finish).catch(finish);
+      } else {
+        finish();
+      }
+    }, { once: true });
+    const src = img.currentSrc || img.getAttribute('src');
+    if (src && !img.complete) {
+      const probe = new Image();
+      probe.src = src;
+    }
+  }
 
-  ['projects', 'certifications'].forEach((id) => {
-    const section = document.getElementById(id);
-    if (!section || !('IntersectionObserver' in window)) return;
+  function warmAll() {
+    heavyImgs.forEach(decodeOne);
+  }
+
+  warmAll();
+  requestAnimationFrame(() => requestAnimationFrame(warmAll));
+
+  if (document.fonts?.ready) {
+    document.fonts.ready.then(warmAll);
+  }
+
+  window.addEventListener('load', warmAll, { once: true });
+
+  const projects = document.getElementById('projects');
+  if (projects && 'IntersectionObserver' in window) {
     const obs = new IntersectionObserver(
       (entries) => {
         if (entries.some((e) => e.isIntersecting)) {
-          warm();
+          warmAll();
           obs.disconnect();
         }
       },
-      { rootMargin: '1600px 0px' }
+      { rootMargin: '2400px 0px', threshold: 0 }
     );
-    obs.observe(section);
-  });
+    obs.observe(projects);
+  }
 }
 
 // Recalculate scroll anchors after images paint — NEVER mid-scroll (was causing projects lag)
@@ -1820,7 +1837,7 @@ function setupImageLayoutRefresh() {
   }
 
   document.querySelectorAll(
-    '#projects .featured-project-image img, #certifications .badge-image-actual, img[src^="assets/images/"]'
+    '#projects img[src*="architecture/"], #certifications .badge-image-actual, img[src^="assets/images/"]'
   ).forEach((img) => {
     if (img.complete) return;
     img.addEventListener('load', scheduleRefresh, { once: true });
