@@ -74,6 +74,10 @@
   --container: min(1240px, calc(100% - (var(--page-x) * 2)));
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --nav-pill-duration: 620ms;
+  --nav-pill-ease: cubic-bezier(0.16, 1, 0.28, 1);
+  --nav-label-duration: 0.32s;
+  --nav-label-ease: cubic-bezier(0.16, 1, 0.3, 1);
   --transition: 0.35s var(--ease-out);
   --shine-sweep: 0.48s;
   --shine-fade: 0.1s;
@@ -148,7 +152,8 @@
   --name-shadow-main: none;
   --name-shadow-hero-desktop: none;
   --name-shadow-accent: none;
-  --nav-glass-blur: blur(32px) saturate(180%) brightness(1.06);
+  --nav-glass-blur: blur(40px) saturate(200%) brightness(1.07);
+  --nav-glass-blur-mobile: blur(28px) saturate(185%) brightness(1.05);
   --nav-glass-blur-scrolled: blur(38px) saturate(185%) brightness(1.04);
   --nav-frost-surface: linear-gradient(
     168deg,
@@ -156,7 +161,20 @@
     rgba(14, 16, 36, 0.52) 46%,
     rgba(6, 8, 22, 0.68) 100%
   );
+  --nav-frost-surface-glass: linear-gradient(
+    168deg,
+    rgba(255, 255, 255, 0.16) 0%,
+    rgba(255, 255, 255, 0.07) 12%,
+    rgba(14, 18, 42, 0.38) 48%,
+    rgba(6, 8, 24, 0.52) 100%
+  );
   --nav-frost-border: rgba(255, 255, 255, 0.12);
+  --nav-frost-border-glass: rgba(255, 255, 255, 0.2);
+  --nav-glass-shadow:
+    0 18px 52px rgba(0, 0, 0, 0.4),
+    0 6px 18px rgba(0, 0, 0, 0.26),
+    inset 0 1px 0 rgba(255, 255, 255, 0.24),
+    inset 0 -0.5px 0 rgba(0, 0, 0, 0.3);
   --nav-menu-surface: linear-gradient(
     168deg,
     rgba(255, 255, 255, 0.04) 0%,
@@ -710,7 +728,8 @@ nav {
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   isolation: isolate;
-  transform: translateZ(0);
+  transform: translate3d(0, 0, 0);
+  contain: layout style;
 }
 
 /* Nav — one consistent look while scrolling (no scrolled-state color shift) */
@@ -1060,10 +1079,9 @@ nav {
   transform: translate3d(0, 0, 0);
   transform-origin: 0 0;
   transition:
-    transform 0.56s cubic-bezier(0.16, 1, 0.3, 1),
-    width 0.56s cubic-bezier(0.16, 1, 0.3, 1),
-    height 0.56s cubic-bezier(0.16, 1, 0.3, 1),
-    opacity 0.2s ease;
+    transform var(--nav-pill-duration) var(--nav-pill-ease),
+    width var(--nav-pill-duration) var(--nav-pill-ease),
+    height var(--nav-pill-duration) var(--nav-pill-ease);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   will-change: auto;
@@ -1122,7 +1140,9 @@ nav a {
   border-radius: 999px;
   line-height: 1.3;
   border: 0.5px solid transparent;
-  transition: color 0.22s ease, background 0.22s ease;
+  transition:
+    color var(--nav-label-duration) var(--nav-label-ease),
+    background 0.22s ease;
   white-space: nowrap;
   -webkit-font-smoothing: antialiased;
   touch-action: manipulation;
@@ -7991,6 +8011,35 @@ button.footer-logo-badge {
     box-shadow: var(--nav-menu-shadow);
   }
 
+  .nav-links.is-open > a {
+    animation: navMenuItemIn 0.36s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  }
+
+  .nav-links.is-open > a:nth-child(2) { animation-delay: 0.03s; }
+  .nav-links.is-open > a:nth-child(3) { animation-delay: 0.05s; }
+  .nav-links.is-open > a:nth-child(4) { animation-delay: 0.07s; }
+  .nav-links.is-open > a:nth-child(5) { animation-delay: 0.09s; }
+  .nav-links.is-open > a:nth-child(6) { animation-delay: 0.11s; }
+  .nav-links.is-open > a:nth-child(7) { animation-delay: 0.13s; }
+  .nav-links.is-open > a:nth-child(8) { animation-delay: 0.15s; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nav-links.is-open > a {
+      animation: none;
+    }
+  }
+
+  @keyframes navMenuItemIn {
+    from {
+      opacity: 0;
+      transform: translate3d(0, -6px, 0);
+    }
+    to {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
   .nav-indicator {
     display: none !important;
     opacity: 0 !important;
@@ -8005,6 +8054,11 @@ button.footer-logo-badge {
     color: rgba(224, 242, 254, 0.96);
     border: 0.5px solid rgba(96, 165, 250, 0.22);
     text-shadow: none;
+    transition:
+      color 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+      background 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.18s ease;
   }
 
   nav a {
@@ -9024,7 +9078,6 @@ html.is-scroll-momentum .site-content {
 
 html.is-page-scrolling .ambient-bg,
 html.is-scroll-momentum .ambient-bg {
-  contain: strict;
   pointer-events: none;
 }
 
@@ -9037,9 +9090,7 @@ html.is-page-scrolling .site-content {
   pointer-events: auto;
 }
 
-html.is-scrolling .nav-inner,
-html.is-page-scrolling .nav-inner,
-html.is-scroll-momentum .nav-inner,
+/* Nav scroll — project filters only (nav frost stays ON = no blink) */
 html.is-scrolling .project-filters,
 html.is-page-scrolling .project-filters,
 html.is-scroll-momentum .project-filters {
@@ -9047,44 +9098,23 @@ html.is-scroll-momentum .project-filters {
   -webkit-backdrop-filter: none !important;
 }
 
-html.is-page-scrolling .nav-indicator,
+html.is-page-scrolling:not(.nav-pill-sliding) .nav-indicator,
 html.is-scrolling:not(.nav-pill-sliding) .nav-indicator {
-  transition: none !important;
   will-change: auto !important;
 }
 
-html.is-scrolling.is-long-travel .featured-project-card,
-html.is-scrolling.is-long-travel .additional-project-card,
-html.is-scrolling.is-long-travel .work-grid-card,
-html.is-scrolling.is-long-travel .badge-item,
-html.is-scrolling.is-long-travel .achievement-card,
-html.is-scrolling.is-long-travel .skill-card,
-html.is-page-scrolling .featured-project-card,
-html.is-page-scrolling .additional-project-card,
-html.is-page-scrolling .work-grid-card,
-html.is-page-scrolling .badge-item,
-html.is-page-scrolling .achievement-card,
-html.is-page-scrolling .skill-card,
-html.is-page-scrolling .projects-stage,
-html.is-page-scrolling .about-stage,
-html.is-page-scrolling .credly-wallet,
-html.is-page-scrolling .skills-wallet,
-html.is-page-scrolling .contact-stage,
-html.is-scroll-momentum .featured-project-card,
-html.is-scroll-momentum .additional-project-card,
-html.is-scroll-momentum .work-grid-card,
-html.is-scroll-momentum .badge-item,
-html.is-scroll-momentum .achievement-card,
-html.is-scroll-momentum .skill-card,
-html.is-scroll-momentum .projects-stage,
-html.is-scroll-momentum .about-stage,
-html.is-scroll-momentum .credly-wallet,
-html.is-scroll-momentum .skills-wallet,
-html.is-scroll-momentum .contact-stage,
-html.is-scroll-momentum .hero-content,
-html.is-scroll-momentum section[id]:not(#portfolio-deployment) {
-  contain: paint;
+@media (min-width: 769px) {
+  html.is-page-scrolling:not(.nav-pill-sliding) .nav-indicator:not(.is-live-tracking),
+  html.is-scrolling:not(.nav-pill-sliding) .nav-indicator:not(.is-live-tracking),
+  html.is-scroll-momentum:not(.nav-pill-sliding) .nav-indicator:not(.is-live-tracking) {
+    transition:
+      transform var(--nav-pill-duration) var(--nav-pill-ease),
+      width var(--nav-pill-duration) var(--nav-pill-ease),
+      height var(--nav-pill-duration) var(--nav-pill-ease) !important;
+  }
 }
+
+/* No contain: paint toggle — removing it on scrollend caused full-page repaint shake */
 
 /* Pipeline flow — always live (never pause arrows/lines during scroll) */
 .deploy-phases .deploy-line,
@@ -9094,13 +9124,32 @@ html.is-scroll-momentum section[id]:not(#portfolio-deployment) {
   animation-play-state: running !important;
 }
 
+.nav-indicator.is-live-tracking {
+  transition:
+    transform 0.14s cubic-bezier(0.22, 1, 0.32, 1),
+    width 0.14s cubic-bezier(0.22, 1, 0.32, 1),
+    height 0.14s cubic-bezier(0.22, 1, 0.32, 1) !important;
+  will-change: transform, width, height;
+}
+
 html.nav-pill-sliding .nav-indicator {
   transition:
-    transform 0.56s cubic-bezier(0.16, 1, 0.3, 1),
-    width 0.56s cubic-bezier(0.16, 1, 0.3, 1),
-    height 0.56s cubic-bezier(0.16, 1, 0.3, 1),
-    opacity 0.2s ease !important;
+    transform var(--nav-pill-duration) var(--nav-pill-ease),
+    width var(--nav-pill-duration) var(--nav-pill-ease),
+    height var(--nav-pill-duration) var(--nav-pill-ease) !important;
   will-change: transform, width, height !important;
+}
+
+html.nav-travel-short {
+  --nav-pill-duration: 520ms;
+}
+
+html.nav-travel-medium {
+  --nav-pill-duration: 680ms;
+}
+
+html.nav-travel-long {
+  --nav-pill-duration: 840ms;
 }
 
 @media (max-width: 768px) {
@@ -9115,17 +9164,14 @@ html.nav-pill-sliding .nav-indicator {
 /* Pause tiny looping dots only — pipeline arrows always run */
 html.is-scrolling .contact-status-dot,
 html.is-scrolling .contact-eyebrow i,
-html.is-scrolling .nav-live-dot,
-html.is-scrolling .badge-shine,
-html.is-scrolling .hero-badge-shine,
 html.is-page-scrolling .contact-status-dot,
 html.is-page-scrolling .contact-eyebrow i,
-html.is-page-scrolling .nav-live-dot,
-html.is-page-scrolling .badge-shine,
-html.is-page-scrolling .hero-badge-shine,
 html.is-scroll-momentum .contact-status-dot,
 html.is-scroll-momentum .contact-eyebrow i,
-html.is-scroll-momentum .nav-live-dot,
+html.is-scrolling .badge-shine,
+html.is-scrolling .hero-badge-shine,
+html.is-page-scrolling .badge-shine,
+html.is-page-scrolling .hero-badge-shine,
 html.is-scroll-momentum .badge-shine,
 html.is-scroll-momentum .hero-badge-shine {
   animation-play-state: paused !important;
@@ -9397,10 +9443,10 @@ html.is-page-scrolling .badge-image-wrap {
 
   .nav-indicator {
     transition:
-    transform 0.56s cubic-bezier(0.16, 1, 0.3, 1),
-    width 0.56s cubic-bezier(0.16, 1, 0.3, 1),
-    height 0.56s cubic-bezier(0.16, 1, 0.3, 1),
-    opacity 0.2s ease;
+      transform var(--nav-pill-duration) var(--nav-pill-ease),
+      width var(--nav-pill-duration) var(--nav-pill-ease),
+      height var(--nav-pill-duration) var(--nav-pill-ease),
+      opacity 0.2s ease;
   }
 
   .nav-indicator.is-sliding,
@@ -9453,7 +9499,6 @@ html.is-page-scrolling .badge-image-wrap {
 .nav-links,
 .nav-indicator,
 .nav-toggle,
-.nav-inner,
 .glass,
 .glass-strong,
 .about-summary,
@@ -9556,57 +9601,55 @@ html.is-page-scrolling .badge-image-wrap {
 }
 
 @media (min-width: 769px) and (hover: hover) {
-  .nav-inner,
-  nav.scrolled .nav-inner {
-    backdrop-filter: var(--nav-glass-blur) !important;
-    -webkit-backdrop-filter: var(--nav-glass-blur) !important;
+  html.platform-desktop .nav-inner,
+  html.platform-desktop nav.scrolled .nav-inner {
     transition: none !important;
-  }
-}
-
-@media (min-width: 769px) and (hover: none) {
-  .nav-inner,
-  nav.scrolled .nav-inner {
-    backdrop-filter: var(--nav-glass-blur) !important;
-    -webkit-backdrop-filter: var(--nav-glass-blur) !important;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .nav-inner,
-  nav.scrolled .nav-inner {
-    backdrop-filter: var(--nav-glass-blur) !important;
-    -webkit-backdrop-filter: var(--nav-glass-blur) !important;
+  html.platform-desktop .nav-inner,
+  html.platform-desktop nav.scrolled .nav-inner {
     transition: none !important;
   }
 }
 
-/* Mobile nav bar — solid frost (no blur) for identical scroll on all devices */
+/* Mobile — lighter Apple frost when supported (always on, no scroll toggle) */
 @media (max-width: 768px) {
-  .nav-inner,
-  nav.scrolled .nav-inner {
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
+  html.platform-mobile .nav-inner,
+  html.platform-mobile nav.scrolled .nav-inner {
+    background: var(--nav-frost-surface-glass) !important;
+    border-color: var(--nav-frost-border-glass) !important;
+    box-shadow: var(--nav-glass-shadow) !important;
+    backdrop-filter: var(--nav-glass-blur-mobile) !important;
+    -webkit-backdrop-filter: var(--nav-glass-blur-mobile) !important;
   }
 
-  .nav-links.is-open,
-  .nav-toggle {
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
+  html.platform-mobile .nav-links.is-open {
+    background: linear-gradient(
+      168deg,
+      rgba(255, 255, 255, 0.1) 0%,
+      rgba(12, 14, 32, 0.82) 44%,
+      rgba(4, 6, 18, 0.94) 100%
+    ) !important;
+    border-color: var(--nav-frost-border-glass) !important;
+    backdrop-filter: var(--nav-glass-blur-mobile) !important;
+    -webkit-backdrop-filter: var(--nav-glass-blur-mobile) !important;
+  }
+
+  html.platform-mobile .nav-toggle {
+    backdrop-filter: var(--nav-glass-blur-mobile) !important;
+    -webkit-backdrop-filter: var(--nav-glass-blur-mobile) !important;
   }
 }
 
-@media (max-width: 768px) and (prefers-reduced-motion: reduce) {
-  .nav-inner,
-  nav.scrolled .nav-inner {
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-  }
-
-  .nav-links.is-open,
-  .nav-toggle {
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
+@supports not (backdrop-filter: blur(1px)) {
+  @media (max-width: 768px) {
+    html.platform-mobile .nav-inner,
+    html.platform-mobile .nav-links.is-open {
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+    }
   }
 }
 
@@ -9868,12 +9911,6 @@ html.is-page-scrolling .badge-image-wrap {
     overscroll-behavior-y: none;
   }
 
-  html.platform-mobile .nav-inner,
-  html.platform-mobile nav.scrolled .nav-inner {
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-  }
-
   html.platform-mobile .nav-links a {
     min-height: 44px;
     display: flex;
@@ -9891,43 +9928,58 @@ html.is-page-scrolling .badge-image-wrap {
   }
 }
 
-/* ===== PLATFORM: DESKTOP — Apple Pro silk nav + glass ===== */
+/* ===== PLATFORM: DESKTOP — Apple Pro silk nav + premium frost glass ===== */
 @media (min-width: 769px) {
-  html.platform-desktop:not(.is-page-scrolling):not(.is-scroll-momentum):not(.is-scrolling) .nav-inner {
+  html.platform-desktop .nav-inner,
+  html.platform-desktop nav.scrolled .nav-inner {
+    background: var(--nav-frost-surface-glass) !important;
+    border-color: var(--nav-frost-border-glass) !important;
+    box-shadow: var(--nav-glass-shadow) !important;
     backdrop-filter: var(--nav-glass-blur) !important;
     -webkit-backdrop-filter: var(--nav-glass-blur) !important;
   }
 
+  html.platform-desktop .nav-inner::before {
+    background:
+      radial-gradient(ellipse 100% 72% at 50% -10%, rgba(255, 255, 255, 0.3) 0%, transparent 54%),
+      radial-gradient(ellipse 88% 58% at 50% 0%, rgba(186, 230, 253, 0.1) 0%, transparent 58%),
+      radial-gradient(ellipse 48% 32% at 92% 100%, rgba(56, 189, 248, 0.06) 0%, transparent 55%);
+    opacity: 1;
+  }
+
+  html.platform-desktop .nav-inner::after {
+    opacity: 0.55;
+  }
+
   html.platform-desktop.nav-pill-sliding .nav-indicator {
     transition:
-      transform 0.62s cubic-bezier(0.16, 1, 0.28, 1),
-      width 0.62s cubic-bezier(0.16, 1, 0.28, 1),
-      height 0.62s cubic-bezier(0.16, 1, 0.28, 1),
-      opacity 0.22s ease !important;
+      transform var(--nav-pill-duration) var(--nav-pill-ease),
+      width var(--nav-pill-duration) var(--nav-pill-ease),
+      height var(--nav-pill-duration) var(--nav-pill-ease) !important;
   }
 
-  html.platform-desktop:not(.is-page-scrolling):not(.is-scrolling) .nav-links > a:not(.cta-nav) {
-    transition: color 0.28s ease, opacity 0.28s ease;
+  html.platform-desktop .nav-links > a:not(.cta-nav) {
+    transition:
+      color var(--nav-label-duration) var(--nav-label-ease),
+      background 0.22s ease;
   }
 
-  html.platform-desktop:not(.is-page-scrolling):not(.is-scrolling) .cta-nav {
+  html.platform-desktop .nav-links > a.active:not(.cta-nav) {
+    transition:
+      color calc(var(--nav-label-duration) + 0.06s) var(--nav-label-ease),
+      background 0.22s ease;
+  }
+
+  html.platform-desktop .cta-nav {
     transition:
       transform 0.34s cubic-bezier(0.16, 1, 0.3, 1),
       box-shadow 0.34s ease,
-      border-color 0.34s ease;
+      border-color 0.34s ease,
+      filter 0.34s ease;
   }
 
   html.platform-desktop .site-content {
     scroll-behavior: auto;
-  }
-
-  /* Projects — no paint containment during scroll (prevents diagram half-flash) */
-  html.platform-desktop.is-page-scrolling #projects .featured-project-card,
-  html.platform-desktop.is-page-scrolling #projects .work-grid-card,
-  html.platform-desktop.is-scroll-momentum #projects .featured-project-card,
-  html.platform-desktop.is-scroll-momentum #projects .work-grid-card,
-  html.platform-desktop.is-scrolling.is-long-travel #projects .featured-project-card {
-    contain: none;
   }
 
   html.platform-desktop .featured-project-image,
