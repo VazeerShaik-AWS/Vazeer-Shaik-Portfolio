@@ -7909,9 +7909,9 @@ button.footer-logo-badge {
     transform: translate3d(0, -10px, 0) scale(0.97);
     transform-origin: top center;
     transition:
-      opacity 0.36s cubic-bezier(0.32, 0.72, 0, 1),
-      transform 0.4s cubic-bezier(0.32, 0.72, 0, 1),
-      visibility 0.36s;
+      opacity 0.32s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.38s cubic-bezier(0.16, 1, 0.3, 1),
+      visibility 0.32s;
     z-index: 1002;
     width: auto;
     max-width: none;
@@ -9546,8 +9546,8 @@ html.is-page-scrolling .badge-image-wrap {
 @media (max-width: 768px) and (prefers-reduced-motion: reduce) {
   .nav-inner,
   nav.scrolled .nav-inner {
-    backdrop-filter: var(--nav-glass-blur) !important;
-    -webkit-backdrop-filter: var(--nav-glass-blur) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
   }
 
   .nav-links.is-open,
@@ -9801,5 +9801,70 @@ html.is-page-scrolling .badge-image-wrap {
     grid-template-columns: minmax(10.5rem, 32%) 1fr;
     gap: 14px 18px;
     padding: 13px 0;
+  }
+}
+
+/* ===== PLATFORM: MOBILE — Apple iOS scroll + touch ===== */
+@media (max-width: 768px) {
+  html.platform-mobile {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  html.platform-mobile body {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: none;
+  }
+
+  html.platform-mobile .nav-inner,
+  html.platform-mobile nav.scrolled .nav-inner {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  html.platform-mobile .nav-links a {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    touch-action: manipulation;
+  }
+
+  html.platform-mobile .nav-toggle {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html.platform-mobile:not(.is-page-scrolling):not(.is-scroll-momentum) .nav-links.is-open a {
+    transition: background-color 0.22s ease, color 0.22s ease;
+  }
+}
+
+/* ===== PLATFORM: DESKTOP — Apple Pro silk nav + glass ===== */
+@media (min-width: 769px) {
+  html.platform-desktop:not(.is-page-scrolling):not(.is-scroll-momentum):not(.is-scrolling) .nav-inner {
+    backdrop-filter: var(--nav-glass-blur) !important;
+    -webkit-backdrop-filter: var(--nav-glass-blur) !important;
+  }
+
+  html.platform-desktop.nav-pill-sliding .nav-indicator {
+    transition:
+      transform 0.62s cubic-bezier(0.16, 1, 0.28, 1),
+      width 0.62s cubic-bezier(0.16, 1, 0.28, 1),
+      height 0.62s cubic-bezier(0.16, 1, 0.28, 1),
+      opacity 0.22s ease !important;
+  }
+
+  html.platform-desktop:not(.is-page-scrolling):not(.is-scrolling) .nav-links > a:not(.cta-nav) {
+    transition: color 0.28s ease, opacity 0.28s ease;
+  }
+
+  html.platform-desktop:not(.is-page-scrolling):not(.is-scrolling) .cta-nav {
+    transition:
+      transform 0.34s cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 0.34s ease,
+      border-color 0.34s ease;
+  }
+
+  html.platform-desktop .site-content {
+    scroll-behavior: auto;
   }
 }

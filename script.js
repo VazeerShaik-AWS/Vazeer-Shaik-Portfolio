@@ -30,6 +30,7 @@ function initPortfolio() {
   }
 
   setupInstantReveal();
+  setupPlatformClasses();
   refreshNavMetrics();
   setupMobileNav(); // before setupNavigation so mobileMenu API is ready
   setupNavigation();
@@ -72,6 +73,27 @@ function revealAllAnimatedElements() {
     '.section-title, .deploy-card, .deploy-node, .deploy-step-item'
   ).forEach((el) => {
     el.classList.add('animate-in');
+  });
+}
+
+function setupPlatformClasses() {
+  const root = document.documentElement;
+  const apply = () => {
+    const mobile = isMobileNavLayout();
+    root.classList.toggle('platform-mobile', mobile);
+    root.classList.toggle('platform-desktop', !mobile);
+  };
+
+  apply();
+
+  window.matchMedia('(max-width: 768px)').addEventListener('change', () => {
+    apply();
+    refreshNavMetrics();
+    cacheScrollLayout(document.querySelectorAll('section[id]'));
+    navSpyApi?.refreshSpy?.();
+    navIndicatorApi?.refreshMetrics?.();
+    mobileMenu?.updateNavMenuAnchor?.();
+    if (!isMobileNavLayout()) mobileMenu?.closeMenu?.();
   });
 }
 
@@ -183,28 +205,29 @@ function getScrollDuration(delta) {
   const mobile = isMobileNavLayout();
   const mode = getTravelMode(distance);
 
+  /* Mobile: snappy Apple iOS feel | Desktop: silkier Pro glide */
   if (mode === 'long') {
-    if (distance > 3200) return mobile ? 1750 : 2040;
-    if (distance > 2200) return mobile ? 1580 : 1860;
-    return mobile ? 1450 : 1700;
+    if (distance > 3200) return mobile ? 1680 : 2180;
+    if (distance > 2200) return mobile ? 1520 : 1980;
+    return mobile ? 1380 : 1820;
   }
 
   if (mode === 'medium') {
-    if (distance > 1200) return mobile ? 1280 : 1540;
-    return mobile ? 1180 : 1420;
+    if (distance > 1200) return mobile ? 1220 : 1620;
+    return mobile ? 1120 : 1480;
   }
 
   const perceptual =
-    Math.sqrt(distance) * (mobile ? 19 : 21.2) +
-    Math.pow(distance, 0.38) * (mobile ? 9.2 : 10.8);
+    Math.sqrt(distance) * (mobile ? 18.5 : 22.4) +
+    Math.pow(distance, 0.38) * (mobile ? 8.8 : 11.2);
 
-  const base = mobile ? 560 : 600;
-  const min = mobile ? 680 : 820;
-  const max = mobile ? 1020 : 1180;
+  const base = mobile ? 520 : 640;
+  const min = mobile ? 640 : 860;
+  const max = mobile ? 980 : 1280;
 
-  if (distance < 40) return mobile ? 560 : 680;
-  if (distance < 100) return mobile ? 660 : 820;
-  if (distance < 240) return mobile ? 780 : 940;
+  if (distance < 40) return mobile ? 520 : 720;
+  if (distance < 100) return mobile ? 620 : 860;
+  if (distance < 240) return mobile ? 720 : 980;
 
   return Math.min(max, Math.max(min, base + perceptual));
 }
@@ -705,8 +728,8 @@ function lockNavSpyDuringScroll(longHaul = false) {
 }
 
 function scrollToY(targetY) {
-  userNavTarget = targetY <= 0 ? 'top' : userNavTarget;
-  runProgrammaticScroll(targetY);
+  if (targetY <= 0) userNavTarget = 'top';
+  runProgrammaticScroll(Math.max(0, targetY));
 }
 
 function scrollToSection(target) {
@@ -1374,6 +1397,7 @@ function setupNavigation() {
       e.preventDefault();
       mobileMenu?.closeMenu?.();
       setHomeNav();
+      userNavTarget = 'top';
       scrollToY(0);
     });
   }
@@ -1539,7 +1563,7 @@ function setupMobileNav() {
 
   mainNav?.querySelector('.nav-live-badge')?.addEventListener('click', () => {
     if (isOpen()) closeMenu();
-  });
+  }, true);
 
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && isOpen()) closeMenu();
