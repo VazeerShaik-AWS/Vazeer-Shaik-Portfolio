@@ -2900,6 +2900,8 @@ section.hero {
   flex-direction: column;
   gap: clamp(14px, 2.2vw, 20px);
   width: 100%;
+  contain: layout style;
+  transform: translateZ(0);
 }
 
 .deploy-phase {
@@ -2964,6 +2966,9 @@ section.hero {
     inset 0 -1px 0 rgba(0, 0, 0, 0.12),
     0 6px 22px rgba(0, 0, 0, 0.22),
     0 0 36px rgba(56, 189, 248, 0.07);
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 .deploy-phase-bridge-bubble--auth {
@@ -3146,27 +3151,42 @@ section.hero {
   flex: 0 0 auto;
   padding: 0 4px;
   color: var(--secondary);
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 .deploy-line {
+  position: relative;
   width: 36px;
   height: 2px;
   border-radius: 2px;
-  background: linear-gradient(90deg,
-    var(--primary) 0%,
-    var(--secondary) 40%,
-    var(--accent) 70%,
-    transparent 100%
-  );
-  background-size: 200% 100%;
-  animation: lineFlow 1.6s linear infinite;
-  position: relative;
+  background: rgba(56, 189, 248, 0.18);
   overflow: hidden;
+  isolation: isolate;
+  contain: layout style;
 }
 
-@keyframes lineFlow {
-  0%   { background-position: 100% 0; }
-  100% { background-position: -100% 0; }
+.deploy-line::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  width: 160%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--primary) 26%,
+    var(--secondary) 50%,
+    var(--accent) 72%,
+    transparent 100%
+  );
+  animation: deployLineSweep 1.6s linear infinite;
+  will-change: transform;
+  transform: translate3d(-100%, 0, 0);
+}
+
+@keyframes deployLineSweep {
+  0% { transform: translate3d(-100%, 0, 0); }
+  100% { transform: translate3d(40%, 0, 0); }
 }
 
 .deploy-connector i {
@@ -3174,6 +3194,9 @@ section.hero {
   margin-left: -6px;
   animation: arrowPulse 1.6s ease-in-out infinite;
   color: var(--secondary);
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 @keyframes arrowPulse {
@@ -7443,14 +7466,10 @@ button.footer-logo-badge {
   .deploy-diagram--phase .deploy-line {
     width: 18px;
     height: 2px;
-    background: linear-gradient(90deg,
-      var(--primary) 0%,
-      var(--secondary) 40%,
-      var(--accent) 70%,
-      transparent 100%
-    );
-    background-size: 200% 100%;
-    animation: lineFlow 1.6s linear infinite;
+  }
+
+  .deploy-diagram--phase .deploy-line::after {
+    animation: deployLineSweep 1.6s linear infinite;
   }
 
   .deploy-diagram--phase .deploy-connector i {
@@ -7723,8 +7742,8 @@ button.footer-logo-badge {
     background: var(--nav-frost-surface);
     border: 0.5px solid var(--nav-frost-border);
     box-shadow: var(--nav-ambient);
-    backdrop-filter: var(--nav-glass-blur);
-    -webkit-backdrop-filter: var(--nav-glass-blur);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     transition: none;
     transform: translate3d(0, 0, 0);
     -webkit-backface-visibility: hidden;
@@ -8939,7 +8958,8 @@ button.footer-logo-badge {
 }
 
 /* ===== SCROLL — native momentum + nav ease (zero wheel hijack) ===== */
-html.is-scrolling {
+html.is-page-scrolling,
+html.is-scroll-momentum {
   scroll-snap-type: none;
   overscroll-behavior-y: none;
   scroll-behavior: auto;
@@ -8949,19 +8969,32 @@ html.is-page-scrolling {
   overscroll-behavior-y: none;
 }
 
-html.is-scrolling .site-content,
-html.is-page-scrolling .site-content {
-  pointer-events: auto;
+html.is-page-scrolling .site-content,
+html.is-scroll-momentum .site-content {
+  touch-action: pan-y;
+}
+
+html.is-page-scrolling .ambient-bg,
+html.is-scroll-momentum .ambient-bg {
+  contain: strict;
+  pointer-events: none;
 }
 
 html.is-scrolling.is-nav-travel .site-content {
   pointer-events: none;
 }
 
+html.is-scrolling .site-content,
+html.is-page-scrolling .site-content {
+  pointer-events: auto;
+}
+
 html.is-scrolling .nav-inner,
 html.is-page-scrolling .nav-inner,
+html.is-scroll-momentum .nav-inner,
 html.is-scrolling .project-filters,
-html.is-page-scrolling .project-filters {
+html.is-page-scrolling .project-filters,
+html.is-scroll-momentum .project-filters {
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
 }
@@ -8978,8 +9011,6 @@ html.is-scrolling.is-long-travel .work-grid-card,
 html.is-scrolling.is-long-travel .badge-item,
 html.is-scrolling.is-long-travel .achievement-card,
 html.is-scrolling.is-long-travel .skill-card,
-html.is-scrolling.is-long-travel .deploy-card,
-html.is-scrolling.is-long-travel .deploy-node,
 html.is-page-scrolling .featured-project-card,
 html.is-page-scrolling .additional-project-card,
 html.is-page-scrolling .work-grid-card,
@@ -8990,8 +9021,29 @@ html.is-page-scrolling .projects-stage,
 html.is-page-scrolling .about-stage,
 html.is-page-scrolling .credly-wallet,
 html.is-page-scrolling .skills-wallet,
-html.is-page-scrolling .contact-stage {
+html.is-page-scrolling .contact-stage,
+html.is-scroll-momentum .featured-project-card,
+html.is-scroll-momentum .additional-project-card,
+html.is-scroll-momentum .work-grid-card,
+html.is-scroll-momentum .badge-item,
+html.is-scroll-momentum .achievement-card,
+html.is-scroll-momentum .skill-card,
+html.is-scroll-momentum .projects-stage,
+html.is-scroll-momentum .about-stage,
+html.is-scroll-momentum .credly-wallet,
+html.is-scroll-momentum .skills-wallet,
+html.is-scroll-momentum .contact-stage,
+html.is-scroll-momentum .hero-content,
+html.is-scroll-momentum section[id]:not(#portfolio-deployment) {
   contain: paint;
+}
+
+/* Pipeline flow — always live (never pause arrows/lines during scroll) */
+.deploy-phases .deploy-line,
+.deploy-phases .deploy-line::after,
+.deploy-phases .deploy-connector i,
+.deploy-phases .deploy-phase-bridge-bubble i {
+  animation-play-state: running !important;
 }
 
 html.nav-pill-sliding .nav-indicator {
@@ -9012,21 +9064,22 @@ html.nav-pill-sliding .nav-indicator {
   }
 }
 
-/* Pause tiny looping dots/lines only — ambient background ALWAYS stays on */
-html.is-scrolling .deploy-line,
-html.is-scrolling .deploy-connector i,
+/* Pause tiny looping dots only — pipeline arrows always run */
 html.is-scrolling .contact-status-dot,
 html.is-scrolling .contact-eyebrow i,
 html.is-scrolling .nav-live-dot,
 html.is-scrolling .badge-shine,
 html.is-scrolling .hero-badge-shine,
-html.is-page-scrolling .deploy-line,
-html.is-page-scrolling .deploy-connector i,
 html.is-page-scrolling .contact-status-dot,
 html.is-page-scrolling .contact-eyebrow i,
 html.is-page-scrolling .nav-live-dot,
 html.is-page-scrolling .badge-shine,
-html.is-page-scrolling .hero-badge-shine {
+html.is-page-scrolling .hero-badge-shine,
+html.is-scroll-momentum .contact-status-dot,
+html.is-scroll-momentum .contact-eyebrow i,
+html.is-scroll-momentum .nav-live-dot,
+html.is-scroll-momentum .badge-shine,
+html.is-scroll-momentum .hero-badge-shine {
   animation-play-state: paused !important;
 }
 
@@ -9475,12 +9528,12 @@ html.is-page-scrolling .badge-image-wrap {
   }
 }
 
-/* Mobile nav bar — frosty pill; menu popup stays gradient-only for scroll perf */
+/* Mobile nav bar — solid frost (no blur) for identical scroll on all devices */
 @media (max-width: 768px) {
   .nav-inner,
   nav.scrolled .nav-inner {
-    backdrop-filter: var(--nav-glass-blur) !important;
-    -webkit-backdrop-filter: var(--nav-glass-blur) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
   }
 
   .nav-links.is-open,
