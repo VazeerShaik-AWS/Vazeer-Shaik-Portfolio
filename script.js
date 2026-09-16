@@ -76,12 +76,32 @@ function revealAllAnimatedElements() {
   });
 }
 
+function applyPlatformImagePolicy() {
+  const diagrams = document.querySelectorAll('#projects img[src*="architecture/"]');
+  if (isMobileNavLayout()) {
+    diagrams.forEach((img) => {
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      img.removeAttribute('fetchpriority');
+    });
+    return;
+  }
+
+  const first = diagrams[0];
+  if (first) {
+    first.loading = 'eager';
+    first.decoding = 'async';
+    first.fetchPriority = 'high';
+  }
+}
+
 function setupPlatformClasses() {
   const root = document.documentElement;
   const apply = () => {
     const mobile = isMobileNavLayout();
     root.classList.toggle('platform-mobile', mobile);
     root.classList.toggle('platform-desktop', !mobile);
+    applyPlatformImagePolicy();
   };
 
   apply();
@@ -209,22 +229,25 @@ function easeAppleSuperior(t, mode = 'short') {
   if (t >= 1) return 1;
 
   if (mode === 'long' || mode === 'medium') {
-    /* Smootherstep — cinematic mid-glide, velvet land (Apple product pages) */
+    /* Smootherstep — cinematic mid-glide, velvet land */
     return t * t * t * (t * (t * 6 - 15) + 10);
   }
 
-  /* Nearby hops: cubic-bezier(0.16, 1, 0.3, 1) */
-  return 1 - Math.pow(1 - t, 3.6);
+  if (!isMobileNavLayout()) {
+    /* Desktop nearby hops: smoothstep, not a dart */
+    return t * t * (3 - 2 * t);
+  }
+
+  return 1 - Math.pow(1 - t, 3.2);
 }
 
 function getNavPillDuration(delta) {
-  const distance = Math.abs(delta);
   const scrollMs = getScrollDuration(delta);
-  const mobile = isMobileNavLayout();
-  const ratio = mobile ? 0.38 : 0.42;
-  const min = mobile ? 420 : 480;
-  const max = mobile ? 720 : 860;
-  return Math.min(max, Math.max(min, Math.round(scrollMs * ratio)));
+  if (isMobileNavLayout()) {
+    return Math.min(780, Math.max(440, Math.round(scrollMs * 0.4)));
+  }
+  /* Pill rides with the scroll and lands just ahead of the section */
+  return Math.min(scrollMs, Math.max(640, Math.round(scrollMs * 0.88)));
 }
 
 function applyNavTravelTiming(distance) {
@@ -235,6 +258,12 @@ function applyNavTravelTiming(distance) {
   root.classList.remove('nav-travel-short', 'nav-travel-medium', 'nav-travel-long');
   root.classList.add(`nav-travel-${mode}`);
   root.style.setProperty('--nav-pill-duration', `${pillMs}ms`);
+  root.style.setProperty(
+    '--nav-pill-ease',
+    mode === 'short'
+      ? 'cubic-bezier(0.16, 1, 0.3, 1)'
+      : 'cubic-bezier(0.37, 0, 0.63, 1)'
+  );
 
   return { mode, pillMs };
 }
@@ -243,6 +272,7 @@ function clearNavTravelTiming() {
   const root = document.documentElement;
   root.classList.remove('nav-travel-short', 'nav-travel-medium', 'nav-travel-long');
   root.style.removeProperty('--nav-pill-duration');
+  root.style.removeProperty('--nav-pill-ease');
 }
 
 function getNavPillDurationMs() {
@@ -256,26 +286,26 @@ function getScrollDuration(delta) {
   const mobile = isMobileNavLayout();
   const mode = getTravelMode(distance);
 
-  /* Nav-click silk — long hauls (Let's Talk / back-to-top) glide, not rush */
+  /* Nav-click silk — glide to the section, never rush */
   if (mode === 'long') {
-    if (distance > 3200) return mobile ? 1420 : 1760;
-    if (distance > 2200) return mobile ? 1280 : 1580;
-    return mobile ? 1140 : 1420;
+    if (distance > 3200) return mobile ? 1720 : 2320;
+    if (distance > 2200) return mobile ? 1560 : 2080;
+    return mobile ? 1400 : 1880;
   }
 
   if (mode === 'medium') {
-    if (distance > 1400) return mobile ? 980 : 1180;
-    return mobile ? 860 : 1040;
+    if (distance > 1400) return mobile ? 1180 : 1520;
+    return mobile ? 1040 : 1340;
   }
 
-  if (distance < 40) return mobile ? 380 : 460;
-  if (distance < 100) return mobile ? 500 : 600;
-  if (distance < 240) return mobile ? 620 : 740;
+  if (distance < 40) return mobile ? 420 : 560;
+  if (distance < 100) return mobile ? 560 : 720;
+  if (distance < 240) return mobile ? 700 : 880;
 
-  const perceptual = Math.sqrt(distance) * (mobile ? 14.8 : 17.6);
-  const min = mobile ? 680 : 820;
-  const max = mobile ? 920 : 1100;
-  return Math.min(max, Math.max(min, (mobile ? 480 : 580) + perceptual));
+  const perceptual = Math.sqrt(distance) * (mobile ? 16.2 : 19.4);
+  const min = mobile ? 780 : 920;
+  const max = mobile ? 1080 : 1280;
+  return Math.min(max, Math.max(min, (mobile ? 520 : 640) + perceptual));
 }
 
 function scrollWindowTo(y, options = {}) {
@@ -291,19 +321,6 @@ function scrollWindowTo(y, options = {}) {
 let pageScrollApi = null;
 let scrollIntentY = null;
 
-function getScrollbarWidth() {
-  const diff = Math.max(0, window.innerWidth - document.documentElement.clientWidth);
-  if (diff > 0) return diff;
-
-  const root = document.documentElement;
-  const prev = root.style.overflow;
-  const before = root.clientWidth;
-  root.style.overflow = 'hidden';
-  const after = root.clientWidth;
-  root.style.overflow = prev;
-  return Math.max(0, after - before);
-}
-
 const pageScrollLock = { depth: 0, scrollY: 0 };
 
 function lockPageScroll() {
@@ -311,25 +328,14 @@ function lockPageScroll() {
 
   pageScrollLock.scrollY = window.scrollY;
   const body = document.body;
-  const root = document.documentElement;
-  const preWidth = root.clientWidth;
 
   body.style.position = 'fixed';
   body.style.top = `-${pageScrollLock.scrollY}px`;
   body.style.left = '0';
   body.style.right = '0';
-  body.style.width = `${preWidth}px`;
+  body.style.width = '100%';
 
-  root.classList.add('modal-open');
-
-  const pad = Math.max(getScrollbarWidth(), root.clientWidth - preWidth);
-  if (pad > 0) {
-    body.style.paddingRight = `${pad}px`;
-    const nav = document.getElementById('mainNav');
-    if (nav) {
-      nav.style.paddingRight = `calc(max(var(--page-x), env(safe-area-inset-right)) + ${pad}px)`;
-    }
-  }
+  document.documentElement.classList.add('modal-open');
 }
 
 function unlockPageScroll() {
@@ -340,8 +346,6 @@ function unlockPageScroll() {
   pageScrollLock.scrollY = 0;
 
   const body = document.body;
-  const root = document.documentElement;
-
   body.style.position = '';
   body.style.top = '';
   body.style.left = '';
@@ -352,11 +356,19 @@ function unlockPageScroll() {
   const nav = document.getElementById('mainNav');
   if (nav) nav.style.paddingRight = '';
 
-  root.classList.remove('modal-open');
-  root.style.paddingRight = '';
-  root.style.removeProperty('--scroll-lock-pad');
+  document.documentElement.classList.remove('modal-open');
+  document.documentElement.style.paddingRight = '';
+  document.documentElement.style.removeProperty('--scroll-lock-pad');
 
   window.scrollTo(0, y);
+}
+
+function runWhenFrameReady(fn) {
+  if (document.visibilityState !== 'visible') {
+    fn();
+    return;
+  }
+  requestAnimationFrame(fn);
 }
 
 function pausePageScroll() {
@@ -507,7 +519,8 @@ function runProgrammaticScroll(targetY) {
   const longHaul = mode !== 'short';
 
   scrollIntentY = clampedY;
-  lockNavSpyDuringScroll(longHaul);
+  const travelMs = getScrollDuration(distance);
+  lockNavSpyDuringScroll(travelMs + 280);
   navScrollAnimating = true;
   document.documentElement.classList.add('is-scrolling', 'is-nav-travel');
   document.documentElement.classList.toggle('is-long-travel', longHaul);
@@ -515,27 +528,25 @@ function runProgrammaticScroll(targetY) {
     navIndicatorApi?.stopAnim?.();
   }
 
+  let finished = false;
   const done = () => {
-    if (gen !== scrollGeneration) return;
+    if (finished || gen !== scrollGeneration) return;
+    finished = true;
+    clearTimeout(watchdog);
+    if (smoothScrollCancel) smoothScrollCancel();
     finishProgrammaticScroll();
   };
 
+  const watchdog = window.setTimeout(done, (reduced || distance < 2 ? 90 : travelMs + 280));
+
   if (reduced || distance < 2) {
     scrollWindowTo(clampedY, { snap: true });
-    requestAnimationFrame(done);
+    runWhenFrameReady(done);
     return;
   }
 
-  // Compositor settle; desktop long-jumps get a short Apple commit beat
-  requestAnimationFrame(() => {
-    if (gen !== scrollGeneration || !navScrollAnimating) return;
-    if (longHaul && !isMobileNavLayout()) {
-      window.setTimeout(() => {
-        if (gen !== scrollGeneration || !navScrollAnimating) return;
-        smoothScrollToExact(clampedY, { mode, longHaul }).then(done);
-      }, 48);
-      return;
-    }
+  runWhenFrameReady(() => {
+    if (finished || gen !== scrollGeneration || !navScrollAnimating) return;
     smoothScrollToExact(clampedY, { mode, longHaul }).then(done);
   });
 }
@@ -662,15 +673,19 @@ function beginDesktopNavPill(pillMs) {
   document.documentElement.classList.add('nav-pill-sliding');
   clearTimeout(desktopNavPillTimer);
   const duration = pillMs || getNavPillDurationMs();
-  desktopNavPillTimer = setTimeout(endDesktopNavPill, duration + 90);
+  desktopNavPillTimer = setTimeout(endDesktopNavPill, duration + 120);
 }
 
 function endDesktopNavPill() {
-  if (!desktopNavPillActive) return;
+  if (!desktopNavPillActive) {
+    if (!navScrollAnimating) clearNavTravelTiming();
+    return;
+  }
   desktopNavPillActive = false;
   document.documentElement.classList.remove('nav-pill-sliding');
   clearTimeout(desktopNavPillTimer);
   desktopNavPillTimer = null;
+  if (!navScrollAnimating) clearNavTravelTiming();
 }
 
 function shouldPreserveNavPillAnim() {
@@ -743,24 +758,31 @@ function smoothScrollToExact(targetY, options = {}) {
   const delta = targetY - startY;
   if (Math.abs(delta) < 1) return Promise.resolve();
 
+  if (document.visibilityState !== 'visible') {
+    scrollWindowTo(targetY, { snap: true });
+    return Promise.resolve();
+  }
+
   const duration = getScrollDuration(delta);
   let cancelled = false;
   let interrupted = false;
   let rafId = 0;
   let startTime = 0;
 
-  smoothScrollCancel = () => {
-    cancelled = true;
-    if (rafId) cancelAnimationFrame(rafId);
-    detachScrollInterrupt();
-    smoothScrollCancel = null;
-  };
-
   return new Promise((resolve) => {
+    let settled = false;
     const finish = () => {
+      if (settled) return;
+      settled = true;
       detachScrollInterrupt();
       smoothScrollCancel = null;
       resolve();
+    };
+
+    smoothScrollCancel = () => {
+      cancelled = true;
+      if (rafId) cancelAnimationFrame(rafId);
+      finish();
     };
 
     attachScrollInterrupt(() => {
@@ -808,33 +830,31 @@ function finishProgrammaticScroll() {
   scrollIntentY = null;
   resumePageScroll();
 
-  requestAnimationFrame(() => {
-    endPageScrolling();
-    clearNavTravelTiming();
-    clearNavScrollLock();
+  endPageScrolling();
+  if (!desktopNavPillActive) clearNavTravelTiming();
+  clearNavScrollLock();
 
-    if (targetId) {
-      const section = document.getElementById(targetId);
-      if (section) {
-        const y = getSectionScrollTop(section);
-        if (Math.abs(window.scrollY - y) > 2) {
-          scrollWindowTo(y, { snap: true });
-        }
+  if (targetId) {
+    const section = document.getElementById(targetId);
+    if (section) {
+      const y = getSectionScrollTop(section);
+      if (Math.abs(window.scrollY - y) > 2) {
+        scrollWindowTo(y, { snap: true });
       }
     }
+  }
 
-    const afterScrollWork = () => {
-      if (navScrollAnimating) return;
-      cacheScrollLayout(document.querySelectorAll('section[id]'));
-      navSpyApi?.sync?.();
-    };
+  const afterScrollWork = () => {
+    if (navScrollAnimating) return;
+    cacheScrollLayout(document.querySelectorAll('section[id]'));
+    navSpyApi?.sync?.();
+  };
 
-    if ('requestIdleCallback' in window) {
-      requestIdleCallback(afterScrollWork, { timeout: 180 });
-    } else {
-      setTimeout(afterScrollWork, 64);
-    }
-  });
+  if ('requestIdleCallback' in window) {
+    requestIdleCallback(afterScrollWork, { timeout: 180 });
+  } else {
+    setTimeout(afterScrollWork, 64);
+  }
 }
 
 function clearNavScrollLock() {
@@ -846,15 +866,12 @@ function clearNavScrollLock() {
   }
 }
 
-function lockNavSpyDuringScroll(longHaul = false) {
+function lockNavSpyDuringScroll(lockMs = 1400) {
   navSpyPaused = true;
-  const lockMs = longHaul
-    ? (isMobileNavLayout() ? 1680 : 1980)
-    : (isMobileNavLayout() ? 1100 : 1280);
   navClickLockUntil = Date.now() + lockMs;
   if (navScrollUnlockTimer) clearTimeout(navScrollUnlockTimer);
   if (!('onscrollend' in window)) {
-    navScrollUnlockTimer = setTimeout(clearNavScrollLock, lockMs - 40);
+    navScrollUnlockTimer = setTimeout(clearNavScrollLock, Math.max(80, lockMs - 40));
   }
 }
 
@@ -1086,7 +1103,7 @@ function setupNavIndicator(navLinksContainer) {
     };
 
     if (desktopSpring && !useInstant) {
-      requestAnimationFrame(() => requestAnimationFrame(applyMove));
+      runWhenFrameReady(() => runWhenFrameReady(applyMove));
       return;
     }
 
@@ -1395,7 +1412,7 @@ function setupNavigation() {
     });
 
     // One frame only — bubble starts, scroll follows without double-delay hitch
-    requestAnimationFrame(() => {
+    runWhenFrameReady(() => {
       if (sectionId === 'top') scrollToY(0);
       else scrollToSection(target);
     });
@@ -1566,7 +1583,7 @@ function setupMobileNav() {
 
   function runAfterMenuClose(wasOpen, callback) {
     if (!isMobileNavLayout() || !wasOpen) {
-      requestAnimationFrame(() => requestAnimationFrame(callback));
+      runWhenFrameReady(callback);
       return;
     }
 
@@ -1593,16 +1610,14 @@ function setupMobileNav() {
 
     runAfterMenuClose(wasOpen, () => {
       refreshNavMetrics();
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          const sectionId = targetEl?.getAttribute?.('id') || null;
-          if (sectionId) userNavTarget = sectionId;
-          if (sectionId === 'top') {
-            scrollToY(0);
-            return;
-          }
-          if (targetEl) scrollToSection(targetEl);
-        });
+      runWhenFrameReady(() => {
+        const sectionId = targetEl?.getAttribute?.('id') || null;
+        if (sectionId) userNavTarget = sectionId;
+        if (sectionId === 'top') {
+          scrollToY(0);
+          return;
+        }
+        if (targetEl) scrollToSection(targetEl);
       });
     });
   }
@@ -1706,10 +1721,54 @@ function setupModals() {
     return fallbackAlt || '';
   }
 
+  let modalClosing = false;
+  let closeTimer = 0;
+
+  function wipeModalImage() {
+    if (!modalImage) return;
+    modalImage.onload = null;
+    modalImage.onerror = null;
+    modalImage.classList.remove('is-loading');
+    modalImage.removeAttribute('src');
+    modalImage.alt = '';
+  }
+
+  function onModalFadeOut(e) {
+    if (e.target !== modal) return;
+    if (e.propertyName && e.propertyName !== 'opacity') return;
+    finishClose();
+  }
+
+  function finishClose() {
+    if (!modalClosing) return;
+    modalClosing = false;
+    window.clearTimeout(closeTimer);
+    modal?.removeEventListener('transitionend', onModalFadeOut);
+
+    wipeModalImage();
+    if (modalCaption) {
+      modalCaption.textContent = '';
+      modalCaption.hidden = true;
+    }
+    unlockPageScroll();
+    if (!isMobileNavLayout() && lastActive && typeof lastActive.focus === 'function') {
+      lastActive.focus();
+    }
+    lastActive = null;
+  }
+
   function openModal(src, alt, triggerEl) {
     const resolvedSrc = resolveImageSrc(triggerEl, src);
     const resolvedAlt = resolveModalCaption(triggerEl, alt);
     if (!resolvedSrc || !modal || !modalImage) return;
+
+    if (modalClosing) {
+      window.clearTimeout(closeTimer);
+      modal.removeEventListener('transitionend', onModalFadeOut);
+      modalClosing = false;
+    } else if (!modal.classList.contains('is-open')) {
+      lockPageScroll();
+    }
 
     lastActive = document.activeElement;
     const token = ++imageLoadToken;
@@ -1731,54 +1790,46 @@ function setupModals() {
       modalImage.classList.remove('is-loading');
     };
 
-    modalImage.classList.add('is-loading');
     modalImage.onload = finishLoad;
     modalImage.onerror = finishLoad;
+    modalImage.classList.add('is-loading');
 
-    if (modalImage.src !== resolvedSrc) {
-      modalImage.src = resolvedSrc;
-    } else {
-      modalImage.src = '';
-      modalImage.src = resolvedSrc;
+    modal.setAttribute('aria-hidden', 'false');
+    if (!modal.classList.contains('is-open')) {
+      void modal.offsetWidth;
     }
+    modal.classList.add('is-open');
 
-    if (modalImage.complete && modalImage.naturalWidth > 0) {
-      modalImage.classList.remove('is-loading');
-    }
-
-    lockPageScroll();
-
-    requestAnimationFrame(() => {
-      modal.classList.add('is-open');
-      modal.setAttribute('aria-hidden', 'false');
-      requestAnimationFrame(() => closeBtn?.focus());
+    runWhenFrameReady(() => {
+      if (token !== imageLoadToken) return;
+      if (modalImage.getAttribute('src') !== resolvedSrc) {
+        modalImage.src = resolvedSrc;
+      }
+      if (modalImage.complete && modalImage.naturalWidth > 0) {
+        modalImage.classList.remove('is-loading');
+      }
+      if (!isMobileNavLayout()) {
+        closeBtn?.focus({ preventScroll: true });
+      }
     });
   }
 
   function closeModal() {
-    if (!modal || !modal.classList.contains('is-open')) return;
+    if (!modal || modalClosing) return;
+    if (!modal.classList.contains('is-open')) return;
 
+    modalClosing = true;
     imageLoadToken++;
     modal.classList.remove('is-open');
     modal.setAttribute('aria-hidden', 'true');
-    unlockPageScroll();
 
-    if (modalImage) {
-      modalImage.onload = null;
-      modalImage.onerror = null;
-      modalImage.classList.remove('is-loading');
-      modalImage.removeAttribute('src');
-      modalImage.alt = '';
+    if (document.documentElement.classList.contains('reduced-motion')) {
+      finishClose();
+      return;
     }
 
-    if (modalCaption) {
-      modalCaption.textContent = '';
-      modalCaption.hidden = true;
-    }
-
-    if (lastActive && typeof lastActive.focus === 'function') {
-      lastActive.focus();
-    }
+    modal.addEventListener('transitionend', onModalFadeOut);
+    closeTimer = window.setTimeout(finishClose, isMobileNavLayout() ? 280 : 380);
   }
 
   if (modal) {
@@ -1827,7 +1878,7 @@ function setupModals() {
   });
 }
 
-// Prefetch + decode ALL project architecture diagrams before scroll (zero half-image flash)
+// Decode diagrams only as they approach the viewport (mobile) or on idle (desktop)
 function setupHeavyImageWarmup() {
   const diagramImgs = Array.from(
     document.querySelectorAll('#projects img[src*="architecture/"]')
@@ -1840,59 +1891,52 @@ function setupHeavyImageWarmup() {
 
   function markDiagramReady(img) {
     img.classList.add('is-diagram-ready');
-    img.closest('.featured-project-image, .work-grid-thumb')?.classList.add('is-diagram-ready');
+    img.closest('.featured-project-image, .work-grid-thumb, .badge-image-wrap')?.classList.add('is-diagram-ready');
   }
 
   function decodeOne(img) {
     const finish = () => markDiagramReady(img);
-    if (img.complete && img.naturalWidth > 0) {
-      if (typeof img.decode === 'function') {
+    const settle = () => {
+      if (!isMobileNavLayout() && typeof img.decode === 'function') {
         img.decode().then(finish).catch(finish);
-      } else {
-        finish();
+        return;
       }
+      finish();
+    };
+    if (img.complete && img.naturalWidth > 0) {
+      settle();
       return;
     }
-    img.addEventListener('load', () => {
-      if (typeof img.decode === 'function') {
-        img.decode().then(finish).catch(finish);
-      } else {
-        finish();
-      }
-    }, { once: true });
-    const src = img.currentSrc || img.getAttribute('src');
-    if (src && !img.complete) {
-      const probe = new Image();
-      probe.src = src;
+    img.addEventListener('load', settle, { once: true });
+  }
+
+  const observeNear = (imgs, margin) => {
+    if (!imgs.length) return;
+    if (!('IntersectionObserver' in window)) {
+      imgs.forEach(decodeOne);
+      return;
     }
-  }
-
-  function warmAll() {
-    heavyImgs.forEach(decodeOne);
-  }
-
-  warmAll();
-  requestAnimationFrame(() => requestAnimationFrame(warmAll));
-
-  if (document.fonts?.ready) {
-    document.fonts.ready.then(warmAll);
-  }
-
-  window.addEventListener('load', warmAll, { once: true });
-
-  const projects = document.getElementById('projects');
-  if (projects && 'IntersectionObserver' in window) {
-    const obs = new IntersectionObserver(
+    const io = new IntersectionObserver(
       (entries) => {
-        if (entries.some((e) => e.isIntersecting)) {
-          warmAll();
-          obs.disconnect();
-        }
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          decodeOne(entry.target);
+          io.unobserve(entry.target);
+        });
       },
-      { rootMargin: '2400px 0px', threshold: 0 }
+      { rootMargin: margin, threshold: 0.01 }
     );
-    obs.observe(projects);
+    imgs.forEach((img) => io.observe(img));
+  };
+
+  if (isMobileNavLayout()) {
+    observeNear(heavyImgs, '520px 0px');
+    return;
   }
+
+  if (diagramImgs[0]) decodeOne(diagramImgs[0]);
+  observeNear(diagramImgs.slice(1), '900px 0px');
+  observeNear(badgeImgs, '640px 0px');
 }
 
 // Recalculate scroll anchors after images paint — NEVER mid-scroll (was causing projects lag)
@@ -2101,36 +2145,26 @@ function setupFastTouch() {
   });
 }
 
-// CI/CD pipeline — always animate when visible (never paused during scroll)
+// CI/CD pipeline — sequential hops; pause only when fully offscreen
 function setupDeployFlowLive() {
   if (document.documentElement.classList.contains('reduced-motion')) return;
 
+  const phases = document.querySelector('.deploy-phases');
   const section = document.getElementById('portfolio-deployment');
-  if (!section) return;
+  if (!phases || !section) return;
 
-  const targets = section.querySelectorAll(
-    '.deploy-line, .deploy-packet, .deploy-chevron, .deploy-bridge-chevron, .deploy-phase-bridge-bubble i'
-  );
-  if (!targets.length) return;
-
-  const setState = (state) => {
-    targets.forEach((el) => {
-      el.style.animationPlayState = state;
-    });
-  };
-
-  setState('running');
+  phases.classList.add('is-pipe-paused');
 
   const obs = new IntersectionObserver(
     (entries) => {
-      setState(entries[0]?.isIntersecting ? 'running' : 'paused');
+      phases.classList.toggle('is-pipe-paused', !entries[0]?.isIntersecting);
     },
-    { rootMargin: '160px 0px', threshold: 0 }
+    { rootMargin: '280px 0px', threshold: 0 }
   );
   obs.observe(section);
 }
 
-// Pause off-screen micro-animations only (not pipeline flow)
+// Pause off-screen micro-animations only (pipeline uses setupDeployFlowLive)
 function setupAnimationPausing() {
   function watchSection(sectionId, selector) {
     const section = document.getElementById(sectionId);
@@ -2145,7 +2179,6 @@ function setupAnimationPausing() {
     els.forEach((el) => { el.style.animationPlayState = 'paused'; });
   }
 
-  watchSection('portfolio-deployment', '.deploy-line, .deploy-packet, .deploy-chevron, .deploy-bridge-chevron');
   watchSection('contact', '.contact-status-dot, .contact-eyebrow i');
 
   const nav = document.getElementById('mainNav');

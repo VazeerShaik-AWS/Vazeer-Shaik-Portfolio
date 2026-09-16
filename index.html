@@ -38,23 +38,12 @@
   <link rel="icon" href="assets/images/logos/aws.svg" type="image/svg+xml">
   <link rel="preload" href="style.css" as="style">
   <link rel="preload" href="assets/images/certifications/aws-solutions-architect-associate.png" as="image">
-  <link rel="preload" href="assets/images/architecture/aws-eks-devops-gitops.webp" as="image" type="image/webp">
-  <link rel="preload" href="assets/images/architecture/inkwell-eks-devsecops.webp" as="image" type="image/webp">
-  <link rel="preload" href="assets/images/architecture/aws-multi-tier.webp" as="image" type="image/webp">
-  <link rel="preload" href="assets/images/architecture/serverless-sns-sqs-lambda.webp" as="image" type="image/webp">
-  <link rel="preload" href="assets/images/architecture/event-driven-api-eventbridge.webp" as="image" type="image/webp">
-  <link rel="preload" href="assets/images/architecture/eks-terraform-vpc.webp" as="image" type="image/webp">
-  <link rel="preload" href="assets/images/architecture/multi-env-terraform.webp" as="image" type="image/webp">
-  <link rel="preload" href="assets/images/architecture/terraform-s3-remote-state.webp" as="image" type="image/webp">
-  <link rel="prefetch" href="assets/images/certifications/cloud-quest-solutions-architect.png" as="image">
-  <link rel="prefetch" href="assets/images/certifications/cloud-quest-security.png" as="image">
-  <link rel="prefetch" href="assets/images/certifications/cloud-quest-serverless-developer.png" as="image">
-  <link rel="prefetch" href="assets/images/certifications/cloud-quest-networking.png" as="image">
-  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700&family=Outfit:wght@400;600;700&family=Plus+Jakarta+Sans:ital,wght@0,600;0,700;1,600;1,700&display=swap" as="style" crossorigin>
+  <link rel="preload" href="assets/images/architecture/aws-eks-devops-gitops.webp" as="image" type="image/webp" media="(min-width: 769px)">
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,600;1,700&family=Inter:wght@600;700&family=Outfit:wght@400;600;700&family=Plus+Jakarta+Sans:ital,wght@0,600;0,700;1,600;1,700&display=swap" as="style" crossorigin>
   
   <!-- External Stylesheets -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700&family=Outfit:wght@400;600;700&family=Plus+Jakarta+Sans:ital,wght@0,600;0,700;1,600;1,700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,600;1,700&family=Inter:wght@600;700&family=Outfit:wght@400;600;700&family=Plus+Jakarta+Sans:ital,wght@0,600;0,700;1,600;1,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   
   <style>
@@ -267,8 +256,13 @@
         max-width: var(--container);
         margin: 0 auto;
         overflow: hidden;
-        background: var(--nav-frost-surface);
-        border: 0.5px solid var(--nav-frost-border);
+        background: linear-gradient(
+          168deg,
+          rgba(255, 255, 255, 0.18) 0%,
+          rgba(18, 22, 48, 0.88) 44%,
+          rgba(6, 8, 22, 0.94) 100%
+        );
+        border: 0.5px solid rgba(255, 255, 255, 0.2);
         box-shadow: var(--nav-ambient);
         backdrop-filter: none;
         -webkit-backdrop-filter: none;
@@ -301,17 +295,18 @@
       }
       .logo-monogram.brand-monogram { font-size: 0.66rem; }
       .logo--vs .logo-monogram.brand-monogram {
-        font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
-        font-size: 1rem;
+        font-family: 'Cormorant Garamond', 'Iowan Old Style', Palatino, 'Times New Roman', serif;
+        font-size: 1.38rem;
         font-weight: 600;
-        font-style: normal;
-        letter-spacing: -0.045em;
+        font-style: italic;
+        letter-spacing: -0.07em;
         gap: 0;
-        text-transform: uppercase;
+        text-transform: none;
         white-space: nowrap;
+        line-height: 0.86;
       }
       .logo--vs .monogram-letter--v {
-        background-image: linear-gradient(180deg, #f8fafc 0%, #cbd5e1 100%);
+        background-image: linear-gradient(185deg, #ffffff 0%, #f5f5f7 42%, #d2d2d7 100%);
         -webkit-background-clip: text;
         background-clip: text;
         -webkit-text-fill-color: transparent;
@@ -319,12 +314,12 @@
         filter: none;
       }
       .logo--vs .monogram-letter--s {
-        background-image: linear-gradient(180deg, #ffad42 0%, #ff9900 52%, #ec7211 100%);
+        background-image: linear-gradient(185deg, #ffe7c2 0%, #e8b86d 46%, #c4892b 100%);
         -webkit-background-clip: text;
         background-clip: text;
         -webkit-text-fill-color: transparent;
         color: transparent;
-        margin-left: -0.095em;
+        margin-left: -0.14em;
         filter: none;
         opacity: 1;
       }
@@ -781,7 +776,7 @@
           data-image="assets/images/certifications/aws-solutions-architect-associate.png"
           data-alt="AWS Certified Solutions Architect Associate badge">
           <span class="badge-shine" aria-hidden="true"></span>
-          <img src="assets/images/certifications/aws-solutions-architect-associate.png" alt="" width="96" height="96" loading="eager" fetchpriority="high" decoding="sync">
+          <img src="assets/images/certifications/aws-solutions-architect-associate.png" alt="" width="96" height="96" loading="eager" fetchpriority="high" decoding="async">
         </button>
         <div class="hero-credential-copy">
           <span class="hero-credential-kicker"><i class="fas fa-circle-check"></i> Verified AWS Credential</span>
@@ -887,19 +882,19 @@
               <strong>GitHub Actions</strong>
               <span>Merge workflow</span>
             </div>
-            <div class="deploy-connector" aria-hidden="true"><span class="deploy-line"><span class="deploy-packet"></span></span><span class="deploy-chevron"></span></div>
+            <div class="deploy-connector" aria-hidden="true"><span class="deploy-line"><span class="deploy-packet"></span><span class="deploy-packet deploy-packet--relay"></span></span><span class="deploy-chevron"></span></div>
             <div class="deploy-node">
               <div class="deploy-node-icon node-oidc"><i class="fas fa-fingerprint"></i></div>
               <strong>GitHub OIDC</strong>
               <span>Federated trust</span>
             </div>
-            <div class="deploy-connector" aria-hidden="true"><span class="deploy-line"><span class="deploy-packet"></span></span><span class="deploy-chevron"></span></div>
+            <div class="deploy-connector" aria-hidden="true"><span class="deploy-line"><span class="deploy-packet"></span><span class="deploy-packet deploy-packet--relay"></span></span><span class="deploy-chevron"></span></div>
             <div class="deploy-node">
               <div class="deploy-node-icon node-iam"><i class="fas fa-user-shield"></i></div>
               <strong>AWS IAM Role</strong>
               <span>Least privilege</span>
             </div>
-            <div class="deploy-connector" aria-hidden="true"><span class="deploy-line"><span class="deploy-packet"></span></span><span class="deploy-chevron"></span></div>
+            <div class="deploy-connector" aria-hidden="true"><span class="deploy-line"><span class="deploy-packet"></span><span class="deploy-packet deploy-packet--relay"></span></span><span class="deploy-chevron"></span></div>
             <div class="deploy-node">
               <div class="deploy-node-icon node-sts"><i class="fas fa-clock"></i></div>
               <strong>STS Credentials</strong>
@@ -911,7 +906,7 @@
         <div class="deploy-phase-bridge" aria-hidden="true">
           <span class="deploy-phase-bridge-line"></span>
           <span class="deploy-phase-bridge-bubble deploy-phase-bridge-bubble--deploy">
-            <span class="deploy-bridge-chevron" aria-hidden="true"></span>
+            <i class="fas fa-rocket" aria-hidden="true"></i>
             <span class="deploy-phase-bridge-label">Deploy</span>
           </span>
           <span class="deploy-phase-bridge-line"></span>
@@ -924,19 +919,19 @@
               <strong>Amazon S3</strong>
               <span>Private origin</span>
             </div>
-            <div class="deploy-connector" aria-hidden="true"><span class="deploy-line"><span class="deploy-packet"></span></span><span class="deploy-chevron"></span></div>
+            <div class="deploy-connector" aria-hidden="true"><span class="deploy-line"><span class="deploy-packet"></span><span class="deploy-packet deploy-packet--relay"></span></span><span class="deploy-chevron"></span></div>
             <div class="deploy-node">
               <div class="deploy-node-icon node-invalidate"><i class="fas fa-arrows-rotate"></i></div>
               <strong>Invalidation</strong>
               <span>Edge refresh</span>
             </div>
-            <div class="deploy-connector" aria-hidden="true"><span class="deploy-line"><span class="deploy-packet"></span></span><span class="deploy-chevron"></span></div>
+            <div class="deploy-connector" aria-hidden="true"><span class="deploy-line"><span class="deploy-packet"></span><span class="deploy-packet deploy-packet--relay"></span></span><span class="deploy-chevron"></span></div>
             <div class="deploy-node">
               <div class="deploy-node-icon node-cf"><i class="fas fa-cloud"></i></div>
               <strong>CloudFront</strong>
               <span>CDN + OAC</span>
             </div>
-            <div class="deploy-connector" aria-hidden="true"><span class="deploy-line"><span class="deploy-packet"></span></span><span class="deploy-chevron"></span></div>
+            <div class="deploy-connector" aria-hidden="true"><span class="deploy-line"><span class="deploy-packet"></span><span class="deploy-packet deploy-packet--relay"></span></span><span class="deploy-chevron"></span></div>
             <div class="deploy-node">
               <div class="deploy-node-icon node-live"><i class="fas fa-circle-check"></i></div>
               <strong>Live Portfolio</strong>
@@ -1003,7 +998,7 @@
           data-image="assets/images/certifications/cloud-quest-solutions-architect.png"
           data-alt="AWS Cloud Quest Solutions Architect training badge">
           <span class="badge-shine" aria-hidden="true"></span>
-          <img src="assets/images/certifications/cloud-quest-solutions-architect.png" alt="" class="badge-image-actual" width="88" height="88" loading="eager" fetchpriority="low" decoding="async">
+          <img src="assets/images/certifications/cloud-quest-solutions-architect.png" alt="" class="badge-image-actual" width="88" height="88" loading="lazy" decoding="async">
         </button>
         <span class="badge-track">Architect</span>
         <h5>AWS Cloud Quest Solutions Architect</h5>
@@ -1019,7 +1014,7 @@
           data-image="assets/images/certifications/cloud-quest-security.png"
           data-alt="AWS Cloud Quest Security training badge">
           <span class="badge-shine" aria-hidden="true"></span>
-          <img src="assets/images/certifications/cloud-quest-security.png" alt="" class="badge-image-actual" width="88" height="88" loading="eager" fetchpriority="low" decoding="async">
+          <img src="assets/images/certifications/cloud-quest-security.png" alt="" class="badge-image-actual" width="88" height="88" loading="lazy" decoding="async">
         </button>
         <span class="badge-track">Security</span>
         <h5>AWS Cloud Quest Security</h5>
@@ -1035,7 +1030,7 @@
           data-image="assets/images/certifications/cloud-quest-serverless-developer.png"
           data-alt="AWS Cloud Quest Serverless Developer training badge">
           <span class="badge-shine" aria-hidden="true"></span>
-          <img src="assets/images/certifications/cloud-quest-serverless-developer.png" alt="" class="badge-image-actual" width="88" height="88" loading="eager" fetchpriority="low" decoding="async">
+          <img src="assets/images/certifications/cloud-quest-serverless-developer.png" alt="" class="badge-image-actual" width="88" height="88" loading="lazy" decoding="async">
         </button>
         <span class="badge-track">Serverless</span>
         <h5>AWS Cloud Quest Serverless</h5>
@@ -1051,7 +1046,7 @@
           data-image="assets/images/certifications/cloud-quest-networking.png"
           data-alt="AWS Cloud Quest Networking training badge">
           <span class="badge-shine" aria-hidden="true"></span>
-          <img src="assets/images/certifications/cloud-quest-networking.png" alt="" class="badge-image-actual" width="88" height="88" loading="eager" fetchpriority="low" decoding="async">
+          <img src="assets/images/certifications/cloud-quest-networking.png" alt="" class="badge-image-actual" width="88" height="88" loading="lazy" decoding="async">
         </button>
         <span class="badge-track">Networking</span>
         <h5>AWS Cloud Quest Networking</h5>
@@ -1133,7 +1128,7 @@
       <!-- AWS EKS DevOps -->
       <div class="featured-project-card" data-work-category="devops">
         <div class="featured-project-image clickable-image" role="button" tabindex="0" aria-label="Open architecture: AWS EKS DevOps — Go Web App GitOps" data-image="assets/images/architecture/aws-eks-devops-gitops.webp" data-alt="AWS EKS DevOps — Go Web App GitOps">
-          <img src="assets/images/architecture/aws-eks-devops-gitops.webp" alt="AWS EKS DevOps — Go Web App GitOps" width="640" height="360" loading="eager" fetchpriority="high" decoding="sync">
+          <img src="assets/images/architecture/aws-eks-devops-gitops.webp" alt="AWS EKS DevOps — Go Web App GitOps" width="640" height="360" loading="lazy" decoding="async">
           <div class="image-overlay">
             <span class="featured-badge">DevOps · GitOps</span>
           </div>
@@ -1190,7 +1185,7 @@
       <!-- InkWell DevOps -->
       <div class="featured-project-card" data-work-category="devops">
         <div class="featured-project-image clickable-image" role="button" tabindex="0" aria-label="Open architecture: InkWell — AWS EKS DevOps" data-image="assets/images/architecture/inkwell-eks-devsecops.webp" data-alt="InkWell — AWS EKS DevOps">
-          <img src="assets/images/architecture/inkwell-eks-devsecops.webp" alt="InkWell — AWS EKS DevOps" width="640" height="360" loading="eager" fetchpriority="high" decoding="sync">
+          <img src="assets/images/architecture/inkwell-eks-devsecops.webp" alt="InkWell — AWS EKS DevOps" width="640" height="360" loading="lazy" decoding="async">
           <div class="image-overlay">
             <span class="featured-badge">DevOps · GitOps</span>
           </div>
@@ -1245,7 +1240,7 @@
 
       <article class="work-grid-card" data-work-category="aws">
         <button type="button" class="work-grid-thumb clickable-image" aria-label="Open architecture: Multi-Tier Architecture on AWS" data-image="assets/images/architecture/aws-multi-tier.webp" data-alt="Multi-Tier Architecture on AWS">
-          <img src="assets/images/architecture/aws-multi-tier.webp" alt="" width="320" height="180" loading="eager" decoding="sync">
+          <img src="assets/images/architecture/aws-multi-tier.webp" alt="" width="320" height="180" loading="lazy" decoding="async">
           <span class="work-grid-badge">AWS</span>
         </button>
         <div class="work-grid-body">
@@ -1292,7 +1287,7 @@
 
       <article class="work-grid-card" data-work-category="iac">
         <button type="button" class="work-grid-thumb clickable-image" aria-label="Open architecture: EKS Cluster with Custom VPC — Terraform" data-image="assets/images/architecture/eks-terraform-vpc.webp" data-alt="EKS Cluster with Custom VPC — Terraform">
-          <img src="assets/images/architecture/eks-terraform-vpc.webp" alt="" width="320" height="180" loading="eager" decoding="sync">
+          <img src="assets/images/architecture/eks-terraform-vpc.webp" alt="" width="320" height="180" loading="lazy" decoding="async">
           <span class="work-grid-badge">IaC · EKS</span>
         </button>
         <div class="work-grid-body">
@@ -1346,7 +1341,7 @@
 
       <article class="work-grid-card" data-work-category="iac">
         <button type="button" class="work-grid-thumb clickable-image" aria-label="Open architecture: Multi-Environment AWS Infrastructure — Terraform" data-image="assets/images/architecture/multi-env-terraform.webp" data-alt="Multi-Environment AWS Infrastructure — Terraform">
-          <img src="assets/images/architecture/multi-env-terraform.webp" alt="" width="320" height="180" loading="eager" decoding="sync">
+          <img src="assets/images/architecture/multi-env-terraform.webp" alt="" width="320" height="180" loading="lazy" decoding="async">
           <span class="work-grid-badge">IaC</span>
         </button>
         <div class="work-grid-body">
@@ -1393,7 +1388,7 @@
 
       <article class="work-grid-card" data-work-category="iac">
         <button type="button" class="work-grid-thumb clickable-image" aria-label="Open architecture: Terraform S3 Remote State with DynamoDB Locking" data-image="assets/images/architecture/terraform-s3-remote-state.webp" data-alt="Terraform S3 Remote State with DynamoDB Locking">
-          <img src="assets/images/architecture/terraform-s3-remote-state.webp" alt="" width="320" height="180" loading="eager" decoding="sync">
+          <img src="assets/images/architecture/terraform-s3-remote-state.webp" alt="" width="320" height="180" loading="lazy" decoding="async">
           <span class="work-grid-badge">IaC</span>
         </button>
         <div class="work-grid-body">
@@ -1446,7 +1441,7 @@
 
       <article class="work-grid-card" data-work-category="serverless">
         <button type="button" class="work-grid-thumb clickable-image" aria-label="Open architecture: Serverless Messaging — SNS, SQS &amp; Lambda" data-image="assets/images/architecture/serverless-sns-sqs-lambda.webp" data-alt="Serverless Messaging — SNS, SQS &amp; Lambda">
-          <img src="assets/images/architecture/serverless-sns-sqs-lambda.webp" alt="" width="320" height="180" loading="eager" decoding="sync">
+          <img src="assets/images/architecture/serverless-sns-sqs-lambda.webp" alt="" width="320" height="180" loading="lazy" decoding="async">
           <span class="work-grid-badge">Serverless</span>
         </button>
         <div class="work-grid-body">
@@ -1491,7 +1486,7 @@
 
       <article class="work-grid-card" data-work-category="serverless">
         <button type="button" class="work-grid-thumb clickable-image" aria-label="Open architecture: Event-Driven — API Gateway, EventBridge &amp; Lambda" data-image="assets/images/architecture/event-driven-api-eventbridge.webp" data-alt="Event-Driven — API Gateway, EventBridge &amp; Lambda">
-          <img src="assets/images/architecture/event-driven-api-eventbridge.webp" alt="" width="320" height="180" loading="eager" decoding="sync">
+          <img src="assets/images/architecture/event-driven-api-eventbridge.webp" alt="" width="320" height="180" loading="lazy" decoding="async">
           <span class="work-grid-badge">Event-Driven</span>
         </button>
         <div class="work-grid-body">
